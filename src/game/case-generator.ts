@@ -383,7 +383,8 @@ export function validateCase(c: Case): string[] {
   )
     errors.push("Fontes insuficientes para a exigência do processo");
   for (const doc of c.documents)
-    if (doc.unlock && (!ids.has(doc.unlock.a) || !ids.has(doc.unlock.b)))
-      errors.push("Requisição depende de pista inexistente");
+    for (const required of [doc.unlock, ...(doc.unlockAlternatives ?? [])])
+      if (required && (!ids.has(required.a) || !ids.has(required.b)))
+        errors.push("Requisição depende de pista inexistente");
   return errors;
 }

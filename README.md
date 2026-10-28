@@ -38,7 +38,7 @@ Arraste os papéis pela borda superior. TAB e ENTER navegam pelos controles. **A
 
 O jogo salva no `localStorage` deste navegador. Configurações permitem exportar/importar uma cópia JSON. Uma nova partida substitui o save atual, mas preserva a coleção de documentos, conquistas e finais. Não há sincronização entre dispositivos. Os checkpoints dos capítulos 8, 16 e 24 são locais ao navegador; o arquivo exportado contém a partida atual, sem transportar esses checkpoints anteriores.
 
-## Escopo desta versão 0.3
+## Escopo desta versão 0.4
 
 **Implementado e jogável:**
 
@@ -61,19 +61,22 @@ O jogo salva no `localStorage` deste navegador. Configurações permitem exporta
 - Pressão institucional em três eventos, disparados uma vez por partida: confiança abaixo de 25 abre sindicância; paranoia a partir de 65 provoca vigilância; prestígio a partir de 65 com confiança a partir de 35 concede uma janela de credenciamento. Cada ordem tem prazo e respostas na correspondência. A sindicância suspende recrutamento, omissão e pareceres especiais; a vigilância aumenta a exposição ao recrutar; a credencial permite consultas sem o requisito normal de prestígio. As provas essenciais continuam disponíveis.
 - Aberturas dos quatro capítulos, com avanço por mouse/teclado e estado salvo; encerramentos com documento visual próprio, epílogos específicos dos nove personagens, relatos de civis e histórico das assinaturas. Prisões e libertações posteriores, dados familiares e compromissos editoriais influenciam esses textos.
 - Efeitos locais de papel, envelope, carimbo e telefone, respeitando som e volume; iluminação por período do expediente e movimento reduzido para as animações ambientais.
+- Diligências opcionais nos dias **1, 3, 8, 17, 22 e 28**, pelo arquivo, terminal ou telefone. São **12 fontes escritas**, com uma escolha de via por processo. A formal exige ler a declaração, acrescenta 3 de exposição e 1 de confiança da chefia; a reservada exige ler o depoimento, contato livre e confiança mínima de 40, acrescenta 1 de exposição e reduz em 2 a confiança da chefia e do contato. A sindicância e a pausa de contatos suspendem a via reservada; vigilância acrescenta 2 de exposição a ambas. Os valores aparecem antes da escolha.
+- A diligência entrega uma fonte adicional no mesmo expediente. Corroborá-la com o registro independente abre um caminho alternativo para o anexo, sem escolher a conclusão pelo jogador. A opção anterior continua disponível. Dois dias depois chega um retorno próprio: a via formal acrescenta 1 de paranoia, a reservada 1 de integridade. A escolha, a fonte e os efeitos persistem e não podem ser repetidos. No processo alternativo de Daria, confirmar os nomes da lista não apaga a autoria da impressão.
+- Linha interna acessível pelas ferramentas em telas pequenas, para consultar contatos e participar das conversas mesmo quando a barra lateral está recolhida.
 
-Saves das versões 0.1 e 0.2 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. Os novos campos começam sem restrições e sem reapresentar capítulos antigos. A pressão é avaliada nas manhãs seguintes; consequências são agendadas por relatórios novos. Casos futuros podem seguir ramificações a partir das escolhas salvas, e processos ainda não concluídos podem exigir mais fontes na versão atual.
+Saves das versões 0.1, 0.2 e 0.3 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. Os novos campos começam sem restrições, diligências retroativas ou reapresentação de capítulos antigos. A pressão é avaliada nas manhãs seguintes; consequências são agendadas por relatórios e diligências novos. Casos futuros podem seguir ramificações a partir das escolhas salvas, e processos ainda não concluídos podem exigir mais fontes na versão atual.
 
 **Ainda pendente para a experiência completa do documento mestre:**
 
-- Expandir a liberdade de investigação, com mais suspeitos por processo, cadeias alternativas e pedidos de informação que abram soluções diferentes. Os documentos têm conteúdos próprios, mas a apresentação e o fluxo principal ainda compartilham modelos.
+- Expandir a liberdade de investigação, com mais suspeitos por processo e diligências em outros dias. Há agora duas vias alternativas em seis processos; elas corroboram fatos por fontes distintas, mas ainda não criam conclusões inteiramente novas. A apresentação e o fluxo principal compartilham modelos.
 - Variar mais a composição dos documentos e substituir as ilustrações por material visual mais elaborado quando apropriado.
 - Ampliar as variantes do modo infinito e os acontecimentos institucionais recorrentes. Há quatro estágios e três eventos institucionais por partida, com conteúdo narrativo finito.
 - Acrescentar mais encontros e rotas inteiramente diferentes por capítulo. Há conversas e ramificações reais, mas a campanha ainda converge para a cadeia central do Zarya.
 - Aprofundar a encenação de objetos e as sequências finais; acrescentar trilha composta, animação completa de abertura de pasta e revisão histórica/editorial.
 - Revisar acessibilidade com tecnologias assistivas, testar outros navegadores e realizar testes extensos com jogadores. A validação automatizada de interface usa Chromium.
 
-A campanha é jogável até o dia 30, com seis finais alcançáveis, conteúdo adicional em todos os dias e consequências persistentes. A versão 0.3 ainda não representa o acabamento completo de todo o escopo premium do documento mestre.
+A campanha é jogável até o dia 30, com seis finais alcançáveis, conteúdo adicional em todos os dias e consequências persistentes. A versão 0.4 ainda não representa o acabamento completo de todo o escopo premium do documento mestre.
 
 ## Verificar
 
@@ -86,7 +89,7 @@ npm run test:e2e
 
 Os testes de navegador usam o build de produção; execute `build` antes. O runner inicia e encerra seu próprio servidor na porta 3000; pare outro servidor que ocupe essa porta. No ambiente preparado, Chromium está em `/usr/bin/chromium`. Em outro sistema, instale-o com `npx playwright install chromium` ou indique `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. Essa variável seleciona um executável local, não contém credenciais.
 
-Os testes unitários validam geração determinística, 1.920 casos, as 24 variantes, cronologia, comparação, ações inválidas, progressão, custos humanos, save e os seis percursos completos de finais. As suítes de expansão cobrem ramificações, anexos em duas etapas, seleções livres, entrega única de consequências, sindicância/vigilância/credenciamento, conversas, contatos detidos, epílogos e migração. Os testes de navegador percorrem o primeiro caso e os 30 dias, verificam o modo infinito, save, arraste, teclado, configurações e tela pequena, além de selecionar texto, comparar datas, consultar pareceres, responder à sindicância e produzir uma revisão editorial. Não são uma garantia de equilíbrio narrativo ou de qualidade de todos os textos.
+Os testes unitários validam geração determinística, 1.920 casos, as 24 variantes, cronologia, comparação, ações inválidas, progressão, custos humanos, save e os seis percursos completos de finais. As suítes de expansão cobrem ramificações, anexos em duas etapas, seleções livres, entrega única de consequências, sindicância/vigilância/credenciamento, conversas, contatos detidos, epílogos e migração. A suíte de diligências verifica as 12 fontes, requisitos e custos, caminhos alternativos, autoria de Daria, retorno único e validação do save. Os testes de navegador percorrem o primeiro caso e os 30 dias, verificam o modo infinito, save, arraste, teclado, configurações e tela pequena, além de selecionar texto, comparar datas, consultar pareceres, responder à sindicância, produzir uma revisão editorial e usar as novas diligências. Não são uma garantia de equilíbrio narrativo ou de qualidade de todos os textos.
 
 ## Organização
 
@@ -98,6 +101,7 @@ Os testes unitários validam geração determinística, 1.920 casos, as 24 varia
 - `src/game/consequences.ts`: agendamento e entrega idempotente dos desdobramentos.
 - `src/game/institution.ts`: prazos, restrições e respostas às ordens institucionais.
 - `src/game/contacts.ts`: disponibilidade dos contatos conforme a custódia registrada.
+- `src/game/inquiries.ts` e `src/content/inquiries.ts`: requisitos, custos, fontes das diligências, caminhos alternativos e retorno agendado.
 - `src/content/branching.ts`, `investigations.ts` e `dialogue.ts`: processos alternativos, anexos e falas contextuais.
 - `src/content/later-investigations.ts`, `meetings.ts` e `epilogues.ts`: capítulos seguintes, compromissos das conversas e destinos específicos.
 - `src/game/save-system.ts` e `store.ts`: formato validado, armazenamento e estado Zustand.

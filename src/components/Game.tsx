@@ -34,6 +34,7 @@ import { dialogueFor } from "../content/dialogue";
 import ChapterIntro from "./ChapterIntro";
 import EndingView from "./EndingView";
 import MeetingPanel from "./MeetingPanel";
+import InquiryPanel from "./InquiryPanel";
 import { deskSound } from "../game/desk-sound";
 import { cluesFor, documentAccess, sourceFor } from "../game/evidence";
 type Tool =
@@ -425,7 +426,7 @@ export default function Game() {
             <footer className="menu-footer">
               <span>FICÇÃO HISTÓRICA · EXPERIÊNCIA SINGLE-PLAYER</span>
               <span>
-                VERSÃO 0.3 <b>✦</b> SALVAMENTO LOCAL
+                VERSÃO 0.4 <b>✦</b> SALVAMENTO LOCAL
               </span>
             </footer>
           </section>
@@ -703,6 +704,12 @@ export default function Game() {
                     <kbd>J</kbd>
                   </button>
                   <button
+                    className="phone-tool"
+                    onClick={() => showTool("phone")}
+                  >
+                    <span>☎</span> Linha interna
+                  </button>
+                  <button
                     onClick={() => {
                       setEvidence(activeEvidence.map((p) => p.id));
                       showTool("report");
@@ -935,7 +942,7 @@ export default function Game() {
               <div className="modal-content">
                 <Insignia small />
                 <h2>LUBYANKA</h2>
-                <p>Arquivos da KGB · versão 0.3</p>
+                <p>Arquivos da KGB · versão 0.4</p>
                 <p>
                   Uma obra de ficção histórica sobre a distância entre um
                   registro oficial e uma vida. Personagens, projeto Zarya e
@@ -985,6 +992,7 @@ export default function Game() {
                     onChange={(e) => setQuery(e.target.value)}
                   />
                 </label>
+                {active && <InquiryPanel investigation={active} view={view} />}
                 <div className="archive-results">
                   {archiveDocs
                     .filter(
@@ -1270,6 +1278,7 @@ export default function Game() {
                   ) || "Esta pessoa ainda não tem memória de uma decisão sua."}
                 </p>
                 {active && <MeetingPanel investigation={active} />}
+                {active && <InquiryPanel investigation={active} view={view} />}
                 <button
                   className="outline-button"
                   onClick={() => showTool("archive")}

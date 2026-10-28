@@ -10,16 +10,20 @@ export const normalizeText = (s: string) =>
 export function documentAccess(g: Game, doc: Document): string | null {
   if (
     doc.unlock &&
-    !g.links.some(
-      (l) =>
-        ((l.a === doc.unlock!.a && l.b === doc.unlock!.b) ||
-          (l.a === doc.unlock!.b && l.b === doc.unlock!.a)) &&
-        l.relation === doc.unlock!.relation,
+    ![doc.unlock, ...(doc.unlockAlternatives ?? [])].some((required) =>
+      g.links.some(
+        (l) =>
+          ((l.a === required.a && l.b === required.b) ||
+            (l.a === required.b && l.b === required.a)) &&
+          l.relation === required.relation,
+      ),
     )
   )
     return doc.unlock.a.endsWith("annex-trace")
       ? "Requisição pendente: cruze o anexo com o livro de custódia no quadro."
-      : "Requisição pendente: registre no quadro a relação entre a declaração e o registro independente.";
+      : doc.unlockAlternatives?.length
+        ? "Requisição pendente: confronte a declaração com o registro independente ou corrobore o registro com a diligência recebida."
+        : "Requisição pendente: registre no quadro a relação entre a declaração e o registro independente.";
   if (doc.access && g.pressure.auditUntil >= g.day)
     return "Consulta a pareceres especiais suspensa durante a sindicância. Responda à ordem na correspondência ou aguarde o prazo.";
   if (

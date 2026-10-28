@@ -30,6 +30,11 @@ export interface Clue {
   value: string;
   source: string;
 }
+export interface EvidenceLink {
+  a: string;
+  b: string;
+  relation: "conflict" | "support";
+}
 export interface Document {
   id: string;
   kind: DocumentKind;
@@ -42,7 +47,8 @@ export interface Document {
   sealed?: boolean;
   archive?: boolean;
   scene?: "railway" | "factory" | "laboratory" | "street";
-  unlock?: { a: string; b: string; relation: "conflict" | "support" };
+  unlock?: EvidenceLink;
+  unlockAlternatives?: EvidenceLink[];
   access?: { prestige?: number; trust?: number };
 }
 export interface Case {
@@ -119,6 +125,13 @@ export interface Comparison {
   result: "same" | "different";
   note: string;
 }
+export interface InquiryRecord {
+  caseId: string;
+  day: number;
+  route: "formal" | "reserved";
+  response: string;
+  document: Document;
+}
 export interface Game {
   version: 1;
   seed: string;
@@ -142,6 +155,7 @@ export interface Game {
     clearanceUntil: number;
   };
   responses: { eventId: string; choiceId: string; day: number; text: string }[];
+  inquiries: InquiryRecord[];
   chapterIntro: number | null;
   positions: Record<string, { x: number; y: number }>;
   flags: {

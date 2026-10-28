@@ -9,6 +9,7 @@ import { delayedConsequences, deliverConsequences } from "./consequences";
 import { updateInstitution } from "./institution";
 import { meetingDocuments } from "../content/meetings";
 import { contactUnavailable, contactsPaused } from "./contacts";
+import { withInquiryDocuments } from "../content/inquiries";
 export const actionLabels: Record<Action, string> = {
   release: "Liberar o investigado",
   detain: "Recomendar detenção",
@@ -82,6 +83,7 @@ export function createGame(
     appliedEvents: [],
     pressure: { auditUntil: 0, surveillanceUntil: 0, clearanceUntil: 0 },
     responses: [],
+    inquiries: [],
     chapterIntro: mode === "campaign" ? 1 : null,
     positions: {},
     flags: {
@@ -103,10 +105,13 @@ export const casesFor = (g: Game): Case[] => {
           generateCase(g.seed, g.day),
         ]
       : [generateCase(g.seed, g.day)];
-  const enriched = cases.map((c) => ({
-    ...c,
-    documents: [...c.documents, ...meetingDocuments(g, c)],
-  }));
+  const enriched = cases.map((base) => {
+    const c = withInquiryDocuments(base, g);
+    return {
+      ...c,
+      documents: [...c.documents, ...meetingDocuments(g, c)],
+    };
+  });
   return g.pressure.auditUntil >= g.day || contactsPaused(g)
     ? enriched.map((c) => ({
         ...c,

@@ -1,4 +1,4 @@
-import type { Document, Game } from "./types";
+import type { Document, EvidenceLink, Game } from "./types";
 import { createGame } from "./engine";
 export const SAVE_KEY = "lubyanka-save-v1";
 export interface StorageLike {
@@ -10,6 +10,11 @@ export function serialize(game: Game) {
 }
 const strings = (v: unknown): v is string[] =>
   Array.isArray(v) && v.every((x) => typeof x === "string");
+const validLink = (v: EvidenceLink) =>
+  v &&
+  typeof v.a === "string" &&
+  typeof v.b === "string" &&
+  ["support", "conflict"].includes(v.relation);
 export function validDocument(v: unknown): v is Document {
   if (!v || typeof v !== "object") return false;
   const d = v as Document;
@@ -21,6 +26,10 @@ export function validDocument(v: unknown): v is Document {
       (s) => typeof s === "string",
     ) &&
     strings(d.paragraphs) &&
+    (d.unlock === undefined || validLink(d.unlock)) &&
+    (d.unlockAlternatives === undefined ||
+      (Array.isArray(d.unlockAlternatives) &&
+        d.unlockAlternatives.every(validLink))) &&
     Array.isArray(d.clues) &&
     d.clues.every(
       (c) =>
@@ -54,6 +63,7 @@ export function deserialize(raw: string): Game {
   if (g.pressure === undefined)
     g.pressure = { auditUntil: 0, surveillanceUntil: 0, clearanceUntil: 0 };
   if (g.responses === undefined) g.responses = [];
+  if (g.inquiries === undefined) g.inquiries = [];
   if (g.chapterIntro === undefined) g.chapterIntro = null;
   if (
     !g.pressure ||
@@ -72,6 +82,31 @@ export function deserialize(raw: string): Game {
     !(g.chapterIntro === null || [1, 8, 16, 24].includes(g.chapterIntro))
   )
     throw new Error("Estado de expediente inválido.");
+  if (
+    !Array.isArray(g.inquiries) ||
+    !g.inquiries.every(
+      (r: Game["inquiries"][number]) =>
+        r &&
+        typeof r.caseId === "string" &&
+        Number.isSafeInteger(r.day) &&
+        r.day >= 1 &&
+        r.day <= g.day &&
+        ["formal", "reserved"].includes(r.route) &&
+        typeof r.response === "string" &&
+        validDocument(r.document) &&
+        r.caseId === `story-${r.day}` &&
+        [1, 3, 8, 17, 22, 28].includes(r.day) &&
+        r.document.id === `${r.caseId}-inquiry-${r.route}` &&
+        r.document.archive === true &&
+        r.document.clues.length === 1 &&
+        r.document.clues[0].id === `${r.document.id}-fact` &&
+        r.document.clues[0].key === `${r.caseId}-alegacao` &&
+        ["alegacao", "refutacao"].includes(r.document.clues[0].value),
+    ) ||
+    new Set(g.inquiries.map((r: Game["inquiries"][number]) => r.caseId))
+      .size !== g.inquiries.length
+  )
+    throw new Error("Diligências inválidas.");
   if (
     !["morning", "work", "night", "ending"].includes(g.phase) ||
     !["decisions", "events", "board", "opened", "discovered", "links"].every(
