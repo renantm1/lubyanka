@@ -25,7 +25,7 @@ npm start
 
 ## Jogar o primeiro caso
 
-1. Escolha **Novo jogo** e entre no departamento. A seed determina os processos complementares.
+1. Escolha **Novo jogo**, entre no departamento e use **Iniciar expediente** na abertura do capítulo. ENTER inicia e ESC pula a abertura. A seed determina os processos complementares.
 2. Abra a pasta e fixe o trecho do relatório de Karpov.
 3. Abra a carta, rompa o lacre e examine a fotografia. Elas dão contexto, sem comprovar a acusação.
 4. Busque **Mirov** no terminal. Abra o livro de ponto de Tula e fixe o registro independente.
@@ -38,7 +38,7 @@ Arraste os papéis pela borda superior. TAB e ENTER navegam pelos controles. **A
 
 O jogo salva no `localStorage` deste navegador. Configurações permitem exportar/importar uma cópia JSON. Uma nova partida substitui o save atual, mas preserva a coleção de documentos, conquistas e finais. Não há sincronização entre dispositivos. Os checkpoints dos capítulos 8, 16 e 24 são locais ao navegador; o arquivo exportado contém a partida atual, sem transportar esses checkpoints anteriores.
 
-## Escopo desta versão 0.2
+## Escopo desta versão 0.3
 
 **Implementado e jogável:**
 
@@ -51,25 +51,29 @@ O jogo salva no `localStorage` deste navegador. Configurações permitem exporta
 - Seleção de capítulos via checkpoints, controles de áudio sintetizado, movimento reduzido e modo infinito após um final.
 - Publicação inteiramente estática, com fontes, arte SVG e áudio locais.
 - Seleção livre de trechos, comparação de nomes/datas/horários/referências e anotações persistentes. As relações semânticas que liberam anexos usam pistas escritas e verificáveis; a comparação livre apenas confronta valores e guarda a interpretação do jogador.
-- Sete anexos específicos para o primeiro capítulo, liberados por cruzamento das fontes, com laudos, transcrição e lista de escolta. Citar um anexo fica registrado no relatório.
+- Anexos próprios para os **30 processos principais**. Nos dias 8–30, o primeiro cruzamento libera o anexo; cruzá-lo com o livro de custódia fundamenta uma segunda requisição, para um parecer especial. Esses pareceres são opcionais e exigem prestígio/confiança ou credenciamento válido. Os dias 16–30 exigem três fontes diferentes no relatório.
 - Ramificações efetivas: a custódia de Mirov altera o dia 4; a de Vera altera o dia 9; recrutar Anna altera o dia 12; deter Antonov altera o dia 20; preservar a requisição do dia 5 muda os documentos e a instrução do dia 7.
 - Desdobramentos agendados, correspondência legível e efeitos aplicados uma única vez, inclusive após carregar o save. Pedidos de revisão, documentos e investigações retornam dias depois.
 - Quatro estágios de dificuldade nos processos complementares e no modo infinito (dias 1, 9, 17 e 25): depoimentos presenciais/indiretos, laudos de procedência e exigência de duas, três ou quatro fontes. A complexidade é limitada ao quarto estágio para manter os casos solucionáveis.
 - Ilustrações de ferrovia, fábrica, laboratório e rua, escolhidas pelo contexto, além de diálogos específicos do primeiro capítulo e das novas ramificações.
+- Novas rotas nos capítulos seguintes: a denúncia de Petr pode alterar o caso do relógio; recrutar Yuri muda o processo do dia 18; confrontar Volkov muda o dia 23; entregar um endereço muda o dia 24; deter Elena muda a autoria da última edição; negociar com Volkov pode mudar a ordem de descarte do dia 29. As versões dos anexos acompanham o processo selecionado.
+- Nove conversas com compromissos registrados: proteção familiar, circulação de dados, promoção, cópias, abrigo, colaboração com Volkov, segunda passagem, revisão editorial e destino das vias. As opções têm custos e requisitos verificáveis, não podem ser repetidas para acumular benefícios e podem produzir novos documentos. Contatos detidos em dias anteriores não oferecem novas conversas reservadas.
+- Pressão institucional em três eventos, disparados uma vez por partida: confiança abaixo de 25 abre sindicância; paranoia a partir de 65 provoca vigilância; prestígio a partir de 65 com confiança a partir de 35 concede uma janela de credenciamento. Cada ordem tem prazo e respostas na correspondência. A sindicância suspende recrutamento, omissão e pareceres especiais; a vigilância aumenta a exposição ao recrutar; a credencial permite consultas sem o requisito normal de prestígio. As provas essenciais continuam disponíveis.
+- Aberturas dos quatro capítulos, com avanço por mouse/teclado e estado salvo; encerramentos com documento visual próprio, epílogos específicos dos nove personagens, relatos de civis e histórico das assinaturas. Prisões e libertações posteriores, dados familiares e compromissos editoriais influenciam esses textos.
+- Efeitos locais de papel, envelope, carimbo e telefone, respeitando som e volume; iluminação por período do expediente e movimento reduzido para as animações ambientais.
 
-Saves da versão 0.1 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. As novas consequências são agendadas por relatórios enviados na versão atual; relatórios antigos não recebem penalidades retroativas. Casos futuros podem seguir as novas ramificações a partir das escolhas já salvas.
+Saves das versões 0.1 e 0.2 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. Os novos campos começam sem restrições e sem reapresentar capítulos antigos. A pressão é avaliada nas manhãs seguintes; consequências são agendadas por relatórios novos. Casos futuros podem seguir ramificações a partir das escolhas salvas, e processos ainda não concluídos podem exigir mais fontes na versão atual.
 
 **Ainda pendente para a experiência completa do documento mestre:**
 
-- Expandir os dias 2–30: já são funcionais e têm dilemas próprios, mas usam um formato compacto de documentos. Faltam cenas mais extensas, rotas exclusivas e encontros mais variados.
-- Ampliar as cadeias de investigação e os anexos dos capítulos seguintes; os processos 8–30 ainda usam em grande parte o formato compacto original.
+- Expandir a liberdade de investigação, com mais suspeitos por processo, cadeias alternativas e pedidos de informação que abram soluções diferentes. Os documentos têm conteúdos próprios, mas a apresentação e o fluxo principal ainda compartilham modelos.
 - Variar mais a composição dos documentos e substituir as ilustrações por material visual mais elaborado quando apropriado.
-- Ampliar as variantes do modo infinito, os eventos de paranoia e as rotas abertas por prestígio ou confiança. Há mais etapas e fontes, mas o conjunto de situações narrativas ainda é finito.
-- Escrever mais diálogos e ramificações para todos os personagens; a maioria dos processos diários ainda segue a sequência principal.
-- Aprofundar os epílogos individuais e a encenação dos capítulos/finais; adicionar animação específica de abertura de pasta, trilha e revisão histórica/editorial.
+- Ampliar as variantes do modo infinito e os acontecimentos institucionais recorrentes. Há quatro estágios e três eventos institucionais por partida, com conteúdo narrativo finito.
+- Acrescentar mais encontros e rotas inteiramente diferentes por capítulo. Há conversas e ramificações reais, mas a campanha ainda converge para a cadeia central do Zarya.
+- Aprofundar a encenação de objetos e as sequências finais; acrescentar trilha composta, animação completa de abertura de pasta e revisão histórica/editorial.
 - Revisar acessibilidade com tecnologias assistivas, testar outros navegadores e realizar testes extensos com jogadores. A validação automatizada de interface usa Chromium.
 
-O motor alcança o dia 30 e os seis finais, mas esta entrega é a **primeira versão jogável**, não a conclusão de todo o escopo premium do projeto.
+A campanha é jogável até o dia 30, com seis finais alcançáveis, conteúdo adicional em todos os dias e consequências persistentes. A versão 0.3 ainda não representa o acabamento completo de todo o escopo premium do documento mestre.
 
 ## Verificar
 
@@ -82,7 +86,7 @@ npm run test:e2e
 
 Os testes de navegador usam o build de produção; execute `build` antes. O runner inicia e encerra seu próprio servidor na porta 3000; pare outro servidor que ocupe essa porta. No ambiente preparado, Chromium está em `/usr/bin/chromium`. Em outro sistema, instale-o com `npx playwright install chromium` ou indique `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. Essa variável seleciona um executável local, não contém credenciais.
 
-Os testes unitários validam geração determinística, 1.920 casos, as 24 variantes, cronologia, comparação, ações inválidas, progressão, custos humanos, save e os seis percursos completos de finais. A suíte adicional cobre ramificações, anexos, seleções livres, comparação de valores, entrega única de consequências e migração. Os testes de navegador percorrem o primeiro caso e os 30 dias, verificam o modo infinito, save, arraste, teclado, configurações e tela pequena, além de selecionar texto, comparar datas, liberar um anexo e acompanhar o retorno de Mirov. Não são uma garantia de equilíbrio narrativo ou de qualidade de todos os textos.
+Os testes unitários validam geração determinística, 1.920 casos, as 24 variantes, cronologia, comparação, ações inválidas, progressão, custos humanos, save e os seis percursos completos de finais. As suítes de expansão cobrem ramificações, anexos em duas etapas, seleções livres, entrega única de consequências, sindicância/vigilância/credenciamento, conversas, contatos detidos, epílogos e migração. Os testes de navegador percorrem o primeiro caso e os 30 dias, verificam o modo infinito, save, arraste, teclado, configurações e tela pequena, além de selecionar texto, comparar datas, consultar pareceres, responder à sindicância e produzir uma revisão editorial. Não são uma garantia de equilíbrio narrativo ou de qualidade de todos os textos.
 
 ## Organização
 
@@ -92,7 +96,10 @@ Os testes unitários validam geração determinística, 1.920 casos, as 24 varia
 - `src/game/world.ts`: notícias históricas e consequências ficcionais separadas.
 - `src/game/evidence.ts`: seleção livre, origem das citações, requisições e comparação de valores.
 - `src/game/consequences.ts`: agendamento e entrega idempotente dos desdobramentos.
+- `src/game/institution.ts`: prazos, restrições e respostas às ordens institucionais.
+- `src/game/contacts.ts`: disponibilidade dos contatos conforme a custódia registrada.
 - `src/content/branching.ts`, `investigations.ts` e `dialogue.ts`: processos alternativos, anexos e falas contextuais.
+- `src/content/later-investigations.ts`, `meetings.ts` e `epilogues.ts`: capítulos seguintes, compromissos das conversas e destinos específicos.
 - `src/game/save-system.ts` e `store.ts`: formato validado, armazenamento e estado Zustand.
 - `src/content/`: personagens, capítulos e 30 processos principais.
 - `src/components/`: mesa, documentos, modais e ilustrações vetoriais.

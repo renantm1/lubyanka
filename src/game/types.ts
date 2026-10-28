@@ -95,6 +95,7 @@ export interface Decision {
   note: string;
   response: string;
   thorough?: boolean;
+  character?: string;
 }
 export interface WorldEvent {
   id?: string;
@@ -135,6 +136,13 @@ export interface Game {
   excerpts: Excerpt[];
   comparisons: Comparison[];
   appliedEvents: string[];
+  pressure: {
+    auditUntil: number;
+    surveillanceUntil: number;
+    clearanceUntil: number;
+  };
+  responses: { eventId: string; choiceId: string; day: number; text: string }[];
+  chapterIntro: number | null;
   positions: Record<string, { x: number; y: number }>;
   flags: {
     preserved: number;

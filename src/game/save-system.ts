@@ -51,6 +51,27 @@ export function deserialize(raw: string): Game {
   if (g.excerpts === undefined) g.excerpts = [];
   if (g.comparisons === undefined) g.comparisons = [];
   if (g.appliedEvents === undefined) g.appliedEvents = [];
+  if (g.pressure === undefined)
+    g.pressure = { auditUntil: 0, surveillanceUntil: 0, clearanceUntil: 0 };
+  if (g.responses === undefined) g.responses = [];
+  if (g.chapterIntro === undefined) g.chapterIntro = null;
+  if (
+    !g.pressure ||
+    !["auditUntil", "surveillanceUntil", "clearanceUntil"].every(
+      (k) => Number.isSafeInteger(g.pressure[k]) && g.pressure[k] >= 0,
+    ) ||
+    !Array.isArray(g.responses) ||
+    !g.responses.every(
+      (r: Game["responses"][number]) =>
+        r &&
+        [r.eventId, r.choiceId, r.text].every((x) => typeof x === "string") &&
+        Number.isInteger(r.day) &&
+        r.day >= 1 &&
+        r.day <= g.day,
+    ) ||
+    !(g.chapterIntro === null || [1, 8, 16, 24].includes(g.chapterIntro))
+  )
+    throw new Error("Estado de expediente inválido.");
   if (
     !["morning", "work", "night", "ending"].includes(g.phase) ||
     !["decisions", "events", "board", "opened", "discovered", "links"].every(

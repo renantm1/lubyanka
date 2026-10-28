@@ -1,5 +1,6 @@
 import { beats } from "./campaign";
 import type { Beat, Game } from "../game/types";
+import { personInCustody } from "../game/contacts";
 
 // Ramificações usam decisões de dias anteriores: o processo não muda enquanto está aberto.
 export function beatFor(g: Game): Beat {
@@ -94,6 +95,139 @@ export function beatFor(g: Game): Beat {
         "A cópia financeira que você preservou no dia 5 permitiu a Irina rastrear Z-17. Agora há uma lista nominal de passageiros em vez de apenas um código de despesa.",
       witness:
         "O requerimento e a lista de escolta foram guardados separadamente. Sua cópia liga o pagamento ao nome de Sergei Sokolov.",
+    };
+  if (
+    g.day === 15 &&
+    decision(9)?.subject === "Petr Gusev" &&
+    decision(9)?.action === "expose"
+  )
+    return {
+      ...base,
+      title: "Quem levou o embrulho",
+      subject: "Petr Gusev",
+      occupation: "Fotógrafo e mensageiro eventual",
+      truth: "coverup",
+      character: "karpov",
+      briefing:
+        "Depois de você denunciar o recorte da fotografia, o gabinete atribuiu ao fotógrafo o relógio recebido por Karpov. Petr reconhece ter levado o embrulho, mas não ter pago por ele.",
+      accusation:
+        "Petr Gusev pagou o relógio R-15 entregue a Karpov para obter a liberação de uma carga.",
+      proof:
+        "R-15 foi pago pela conta do fornecedor investigado. O recibo de Petr registra apenas a entrega de um embrulho fechado, sem participação na ordem de liberação.",
+      witness:
+        "A resposta à denúncia tenta deslocar a origem do pagamento para o portador do pacote. O major continua no gabinete.",
+      rationale:
+        "O pagamento e a decisão de liberar a carga não pertencem ao mensageiro. A nova atribuição protege a cadeia que recebeu o benefício.",
+    };
+  if (g.day === 18 && decision(13)?.action === "recruit")
+    return {
+      ...base,
+      title: "A casa do ferroviário",
+      subject: "Yuri Petrov",
+      occupation: "Informante ferroviário",
+      truth: "innocent",
+      character: "mikhail",
+      briefing:
+        "O contato que você abriu com Yuri foi localizado pela segurança. Sua família está procurando abrigo. Uma identidade encontrada com ele foi descrita como prova de uma missão estrangeira.",
+      accusation:
+        "Yuri Petrov usou a identidade B-18 para transportar códigos a um serviço estrangeiro.",
+      proof:
+        "A identidade B-18 foi retirada do cofre por Orlov e entregue a Yuri como cobertura de contato. O envelope recolhido contém horários do vagão seis, sem códigos de serviço.",
+      witness:
+        "Yuri fez o contato depois do recrutamento. A segurança passou a tratar a mesma cobertura como prova de que ele já era um agente.",
+      rationale:
+        "A identidade foi fornecida pela própria rede que o recrutou. O conteúdo do envelope não sustenta a acusação de transmissão de códigos.",
+    };
+  if (g.day === 23 && decision(22)?.action === "confront")
+    return {
+      ...base,
+      title: "A ordem contra Nadia",
+      subject: "Nadia Belova",
+      occupation: "Agente de campo",
+      truth: "coverup",
+      character: "volkov",
+      briefing:
+        "Após o confronto com Volkov, Nadia foi acusada de impedir a auditoria. A ordem que cancelou a visita de Sofia tem os horários registrados em duas vias.",
+      accusation:
+        "Nadia Belova cancelou a auditoria S-23 sem autorização para esconder a retirada dos documentos.",
+      proof:
+        "S-23 foi cancelada por despacho do gabinete enquanto Nadia estava em uma visita de campo registrada. A justificativa com o nome dela foi inserida depois.",
+      witness:
+        "O mensageiro recebeu instrução de entregar à comissão apenas a via que omitia o horário do cancelamento.",
+      rationale:
+        "A cadeia de saída e a visita de campo contradizem a autoria atribuída a Nadia. A versão foi montada depois da decisão do gabinete.",
+    };
+  if (
+    g.day === 24 &&
+    g.responses.some(
+      (r) => r.eventId === "meeting:story-18" && r.choiceId === "address",
+    )
+  )
+    return {
+      ...base,
+      title: "A visita à casa vazia",
+      subject: "Yuri Petrov",
+      occupation: "Ferroviário procurado",
+      truth: "coverup",
+      character: "nadia",
+      briefing:
+        "A segurança usou o endereço que você entregou. Agora Yuri aparece como fugitivo, mas uma ficha de entrada foi encontrada na custódia distrital.",
+      accusation:
+        "Yuri Petrov fugiu do país usando o documento C-24 antes da chegada da equipe à casa.",
+      proof:
+        "A ficha C-24 registra Yuri na custódia distrital, recebido pela mesma equipe que declarou ter encontrado a casa vazia. Não há registro de travessia da fronteira.",
+      witness:
+        "A família não recebeu notícia depois da visita. O nome de quem indicou o endereço está no pedido original.",
+      rationale:
+        "A versão de fuga contradiz a entrada em custódia. A equipe ocultou o destino do contato depois de receber o endereço.",
+    };
+  if (
+    g.day === 28 &&
+    decision(19)?.subject === "Elena Morozova" &&
+    decision(19)?.action === "detain"
+  )
+    return {
+      ...base,
+      title: "Uma edição sem autora",
+      subject: "Daria Rozanova",
+      occupation: "Tipógrafa",
+      truth: "responsible",
+      character: "elena",
+      briefing:
+        "Elena continua detida depois da sua recomendação. Daria terminou a edição com o que restou das chapas e foi encontrada com a prova tipográfica.",
+      accusation:
+        "Daria Rozanova imprimiu a edição clandestina P-28 com os nomes dos desaparecidos.",
+      proof:
+        "As chapas P-28 conservam as correções de Daria e correspondem à edição recolhida. Os onze nomes conferem com notas de escolta e fichas médicas.",
+      witness:
+        "Daria não nega a impressão. Ela pede que o endereço das famílias seja retirado antes de qualquer nova cópia.",
+      rationale:
+        "A impressão foi realizada por Daria. A veracidade dos nomes e a proteção das famílias precisam ser julgadas separadamente da autoria da publicação.",
+    };
+  if (
+    g.day === 29 &&
+    !personInCustody(g, "Viktor Volkov", true) &&
+    g.responses.some(
+      (r) => r.eventId === "meeting:story-22" && r.choiceId === "bargain",
+    )
+  )
+    return {
+      ...base,
+      title: "O preço da palavra dada",
+      subject: "Viktor Volkov",
+      occupation: "Coronel da Diretoria II",
+      truth: "responsible",
+      character: "volkov",
+      briefing:
+        "Volkov lembrou a promessa de manter sua participação reservada. Uma ordem de descarte K-29 chegou com sua rubrica. A promessa e o arquivo agora apontam em direções diferentes.",
+      accusation:
+        "Viktor Volkov autorizou o descarte das cópias que identificam sua participação no Zarya.",
+      proof:
+        "K-29 tem a rubrica do coronel e determina destruir cópias sem recibo de transferência. A assinatura atravessa a emenda da página que lista os protocolos de transporte.",
+      witness:
+        "Volkov afirma que o descarte é parte do acordo. Nenhum registro da comissão autoriza retirar essas páginas do processo.",
+      rationale:
+        "O descarte foi autorizado pelo coronel e atinge provas da própria participação. A colaboração não é uma autorização para apagar a cadeia de comando.",
     };
   return base;
 }

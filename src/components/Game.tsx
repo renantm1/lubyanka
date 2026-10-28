@@ -12,7 +12,7 @@ import {
   actionLabels,
   applyReport,
   casesFor,
-  characterEpilogue,
+  beginShift,
   conclusionLabels,
   endDay,
   endingInfo,
@@ -31,6 +31,10 @@ import Ambience from "./Ambience";
 import EvidenceComparator from "./EvidenceComparator";
 import Dispatches from "./Dispatches";
 import { dialogueFor } from "../content/dialogue";
+import ChapterIntro from "./ChapterIntro";
+import EndingView from "./EndingView";
+import MeetingPanel from "./MeetingPanel";
+import { deskSound } from "../game/desk-sound";
 import { cluesFor, documentAccess, sourceFor } from "../game/evidence";
 type Tool =
   | "settings"
@@ -199,6 +203,7 @@ export default function Game() {
         ).size
       : 0;
   function showTool(t: Tool) {
+    if (t === "phone") deskSound("phone", settings);
     setDoc(null);
     setNotice("");
     setTool(t);
@@ -211,6 +216,10 @@ export default function Game() {
         return;
       }
     }
+    deskSound(
+      d.sealed && !game?.opened.includes(d.id) ? "envelope" : "paper",
+      settings,
+    );
     open(d);
     setTool(null);
     setDoc(d);
@@ -289,6 +298,17 @@ export default function Game() {
       )
         return;
       if (tool || doc) return;
+      if (
+        screen === "desk" &&
+        game?.chapterIntro !== null &&
+        game?.chapterIntro !== undefined
+      ) {
+        if (e.key === "Enter" || e.key === "Escape") {
+          e.preventDefault();
+          setGame(beginShift(game));
+        }
+        return;
+      }
       if (e.key === "Escape" && screen === "desk") {
         setScreen("menu");
         return;
@@ -313,7 +333,7 @@ export default function Game() {
     }
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [screen, tool, doc, game?.phase]);
+  }, [screen, tool, doc, game?.phase, game?.chapterIntro, game, setGame]);
   const currentReport = game?.decisions.find((d) => d.caseId === active?.id);
   const archiveDocs = active?.documents.filter((d) => d.archive) ?? [];
   const news = game ? newsFor(game) : null;
@@ -405,13 +425,13 @@ export default function Game() {
             <footer className="menu-footer">
               <span>FICÇÃO HISTÓRICA · EXPERIÊNCIA SINGLE-PLAYER</span>
               <span>
-                VERSÃO 0.2 <b>✦</b> SALVAMENTO LOCAL
+                VERSÃO 0.3 <b>✦</b> SALVAMENTO LOCAL
               </span>
             </footer>
           </section>
         ) : game && active ? (
           <>
-            <header className="desk-header">
+            <header className="desk-header" inert={game.chapterIntro !== null}>
               <button
                 className="brand"
                 onClick={() => setScreen("menu")}
@@ -459,7 +479,7 @@ export default function Game() {
                 ⚙
               </button>
             </header>
-            <div className="desk-layout">
+            <div className="desk-layout" inert={game.chapterIntro !== null}>
               <aside className="case-sidebar">
                 <div className="sidebar-heading">
                   ENTRADA DE PROCESSOS <span>{cases.length}</span>
@@ -500,18 +520,22 @@ export default function Game() {
                 <div className="sidebar-bottom">
                   <span>
                     ACESSO{" "}
-                    {game.stats.trust < 25
-                      ? "SUPERVISIONADO"
-                      : game.stats.prestige >= 65
-                        ? "ESPECIAL"
-                        : "NÍVEL II"}
+                    {game.pressure.auditUntil >= game.day
+                      ? "SOB SINDICÂNCIA"
+                      : game.stats.trust < 25
+                        ? "SUPERVISIONADO"
+                        : game.stats.prestige >= 65
+                          ? "ESPECIAL"
+                          : "NÍVEL II"}
                   </span>
                   <small>
-                    {game.stats.exposure >= 65
-                      ? "Seu trabalho está sob apuração."
-                      : game.stats.paranoia >= 65
-                        ? "Há rumores nos corredores."
-                        : "Nenhuma mensagem urgente."}
+                    {game.pressure.surveillanceUntil >= game.day
+                      ? "Seus contatos estão sob vigilância interna."
+                      : game.stats.exposure >= 65
+                        ? "Seu trabalho está sob apuração."
+                        : game.stats.paranoia >= 65
+                          ? "Há rumores nos corredores."
+                          : "Nenhuma mensagem urgente."}
                   </small>
                   <button onClick={() => showTool("phone")}>
                     ☎ CONTATAR O DEPARTAMENTO
@@ -744,36 +768,17 @@ export default function Game() {
               </div>
             )}
             {game.phase === "ending" && game.ending && (
-              <div className="ending-screen">
-                <Insignia />
-                <span className="eyebrow">
-                  MOSCOU · DEPOIS DO ÚLTIMO RELATÓRIO
-                </span>
-                <h1>{endingInfo[game.ending].title}</h1>
-                <p className="ending-story">{endingInfo[game.ending].text}</p>
-                <div className="epilogues">
-                  {characters.map((c) => (
-                    <article key={c.id}>
-                      <h3>{c.name}</h3>
-                      <p>{characterEpilogue(game, c.id)}</p>
-                    </article>
-                  ))}
-                </div>
-                <div className="ending-actions">
-                  <button
-                    className="red-button"
-                    onClick={() => launch("infinite")}
-                  >
-                    Iniciar Arquivo Infinito →
-                  </button>
-                  <button
-                    className="outline-button"
-                    onClick={() => setScreen("menu")}
-                  >
-                    Voltar ao menu
-                  </button>
-                </div>
-              </div>
+              <EndingView
+                game={game}
+                onInfinite={() => launch("infinite")}
+                onMenu={() => setScreen("menu")}
+              />
+            )}
+            {game.chapterIntro !== null && game.phase !== "ending" && (
+              <ChapterIntro
+                game={game}
+                begin={() => setGame(beginShift(game))}
+              />
             )}
           </>
         ) : null}
@@ -855,7 +860,7 @@ export default function Game() {
                 <label className="toggle-line">
                   <span>
                     Som ambiente
-                    <small>Ventilação e ruído do departamento</small>
+                    <small>Ventilação, papéis e carimbos do departamento</small>
                   </span>
                   <input
                     type="checkbox"
@@ -930,7 +935,7 @@ export default function Game() {
               <div className="modal-content">
                 <Insignia small />
                 <h2>LUBYANKA</h2>
-                <p>Arquivos da KGB · versão 0.2</p>
+                <p>Arquivos da KGB · versão 0.3</p>
                 <p>
                   Uma obra de ficção histórica sobre a distância entre um
                   registro oficial e uma vida. Personagens, projeto Zarya e
@@ -1157,6 +1162,7 @@ export default function Game() {
                             note,
                           ),
                         );
+                        deskSound("stamp", settings);
                         close();
                       });
                     }}
@@ -1263,6 +1269,7 @@ export default function Game() {
                     -1,
                   ) || "Esta pessoa ainda não tem memória de uma decisão sua."}
                 </p>
+                {active && <MeetingPanel investigation={active} />}
                 <button
                   className="outline-button"
                   onClick={() => showTool("archive")}

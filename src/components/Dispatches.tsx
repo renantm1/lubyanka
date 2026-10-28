@@ -1,5 +1,6 @@
 "use client";
 import type { Document, Game } from "../game/types";
+import NoticeResponses from "./NoticeResponses";
 export default function Dispatches({
   game,
   view,
@@ -36,6 +37,7 @@ export default function Dispatches({
               : "DEVOLUTIVA DO DEPARTAMENTO"}
           </span>
           <p>{e.text}</p>
+          {e.id && <NoticeResponses eventId={e.id} />}
           {e.document && (
             <button
               className="outline-button"

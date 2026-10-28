@@ -1,4 +1,5 @@
 import type { Case, Document, Game } from "../game/types";
+import { annexForCase } from "./later-investigations";
 
 // Anexos específicos. Uma relação registrada gera uma requisição, não uma conclusão automática.
 const annexes: Record<
@@ -78,7 +79,7 @@ const annexes: Record<
   },
 };
 export function deepenInvestigation(c: Case, g?: Game): Case {
-  const data = annexes[c.day];
+  const data = c.day <= 7 ? annexes[c.day] : annexForCase(c);
   if (!data) return c;
   const id = `${c.id}-annex`,
     first = c.documents.find((d) => d.id === `${c.id}-report`)!,
@@ -114,6 +115,64 @@ export function deepenInvestigation(c: Case, g?: Game): Case {
     ],
   });
   if (
+    "chain" in data &&
+    typeof data.chain === "string" &&
+    "custody" in data &&
+    typeof data.custody === "string"
+  ) {
+    const custodyId = `${c.id}-custody`;
+    documents.push({
+      id: custodyId,
+      kind: "record",
+      title: `Livro de custódia · ${data.code}`,
+      subtitle: "ORIGEM, GUARDA E TRANSFERÊNCIA",
+      date: first.date,
+      author: "Arquivo central · registro de circulação",
+      archive: true,
+      paragraphs: [
+        data.chain,
+        "Registre o número do anexo ao citar esta via. Duas versões copiadas de uma mesma fonte não se tornam independentes por receberem carimbos diferentes.",
+      ],
+      clues: [
+        {
+          id: `${custodyId}-trace`,
+          text: data.chain,
+          key: `${c.id}-cadeia`,
+          value: data.code,
+          source: `Livro de custódia ${data.code}`,
+        },
+      ],
+    });
+    documents.push({
+      id: `${c.id}-reserved`,
+      kind: "report",
+      title: `Parecer reservado · ${data.code}`,
+      subtitle: "CIRCULAÇÃO ESPECIAL · COMISSÃO DE REVISÃO",
+      date: first.date,
+      author: "Auditora Sofia Belyaeva",
+      archive: true,
+      unlock: {
+        a: `${id}-trace`,
+        b: `${custodyId}-trace`,
+        relation: "support",
+      },
+      access: { prestige: 65, trust: 35 },
+      paragraphs: [
+        data.custody,
+        "Este parecer não substitui a conclusão do analista. Explicite a responsabilidade que as provas permitem sustentar e as pessoas que o encaminhamento pode atingir.",
+      ],
+      clues: [
+        {
+          id: `${c.id}-reserved-note`,
+          text: data.custody,
+          key: `${c.id}-encaminhamento`,
+          value: "revisao",
+          source: "Comissão de revisão",
+        },
+      ],
+    });
+  }
+  if (
     c.day === 7 &&
     g?.decisions.some((d) => d.caseId === "story-5" && d.action === "preserve")
   )
@@ -139,5 +198,9 @@ export function deepenInvestigation(c: Case, g?: Game): Case {
         },
       ],
     });
-  return { ...c, documents };
+  return {
+    ...c,
+    documents,
+    minimumSources: c.day >= 16 ? 3 : c.minimumSources,
+  };
 }

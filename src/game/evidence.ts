@@ -17,8 +17,16 @@ export function documentAccess(g: Game, doc: Document): string | null {
         l.relation === doc.unlock!.relation,
     )
   )
-    return "Requisição pendente: registre no quadro a relação entre a declaração e o registro independente.";
-  if (doc.access?.prestige && g.stats.prestige < doc.access.prestige)
+    return doc.unlock.a.endsWith("annex-trace")
+      ? "Requisição pendente: cruze o anexo com o livro de custódia no quadro."
+      : "Requisição pendente: registre no quadro a relação entre a declaração e o registro independente.";
+  if (doc.access && g.pressure.auditUntil >= g.day)
+    return "Consulta a pareceres especiais suspensa durante a sindicância. Responda à ordem na correspondência ou aguarde o prazo.";
+  if (
+    doc.access?.prestige &&
+    g.stats.prestige < doc.access.prestige &&
+    g.pressure.clearanceUntil < g.day
+  )
     return "Autorização especial: seu prestígio ainda não permite consultar este anexo opcional.";
   if (doc.access?.trust && g.stats.trust < doc.access.trust)
     return "Consulta suspensa pela chefia. As provas essenciais continuam disponíveis.";

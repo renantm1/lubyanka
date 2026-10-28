@@ -6,6 +6,9 @@ import { beatFor } from "../content/branching";
 import { deepenInvestigation } from "../content/investigations";
 import { cluesFor, documentAccess, sourceFor } from "./evidence";
 import { delayedConsequences, deliverConsequences } from "./consequences";
+import { updateInstitution } from "./institution";
+import { meetingDocuments } from "../content/meetings";
+import { contactUnavailable, contactsPaused } from "./contacts";
 export const actionLabels: Record<Action, string> = {
   release: "Liberar o investigado",
   detain: "Recomendar detenção",
@@ -77,6 +80,9 @@ export function createGame(
     excerpts: [],
     comparisons: [],
     appliedEvents: [],
+    pressure: { auditUntil: 0, surveillanceUntil: 0, clearanceUntil: 0 },
+    responses: [],
+    chapterIntro: mode === "campaign" ? 1 : null,
     positions: {},
     flags: {
       preserved: 0,
@@ -89,13 +95,32 @@ export function createGame(
     ending: null,
   };
 }
-export const casesFor = (g: Game): Case[] =>
-  g.mode === "campaign"
-    ? [
-        deepenInvestigation(storyCase(g.day, beatFor(g)), g),
-        generateCase(g.seed, g.day),
-      ]
-    : [generateCase(g.seed, g.day)];
+export const casesFor = (g: Game): Case[] => {
+  const cases =
+    g.mode === "campaign"
+      ? [
+          deepenInvestigation(storyCase(g.day, beatFor(g)), g),
+          generateCase(g.seed, g.day),
+        ]
+      : [generateCase(g.seed, g.day)];
+  const enriched = cases.map((c) => ({
+    ...c,
+    documents: [...c.documents, ...meetingDocuments(g, c)],
+  }));
+  return g.pressure.auditUntil >= g.day || contactsPaused(g)
+    ? enriched.map((c) => ({
+        ...c,
+        actions: c.actions.filter(
+          (a) =>
+            a !== "recruit" &&
+            (g.pressure.auditUntil < g.day || a !== "conceal"),
+        ),
+      }))
+    : enriched;
+};
+export function beginShift(g: Game): Game {
+  return { ...g, chapterIntro: null };
+}
 const clamp = (n: number) => Math.max(0, Math.min(100, n));
 export function applyReport(
   g: Game,
@@ -199,6 +224,8 @@ export function applyReport(
       delta.trust = -8;
       break;
   }
+  if (action === "recruit" && g.pressure.surveillanceUntil >= g.day)
+    delta.exposure += 3;
   for (const k of Object.keys(delta) as (keyof Stats)[])
     next.stats[k] = clamp(next.stats[k] + delta[k]);
   const relation = next.relations[c.character];
@@ -233,6 +260,7 @@ export function applyReport(
     note: note.slice(0, 1200),
     response,
     thorough: unique.some((id) => !!sourceFor(c, g, id)?.unlock),
+    character: c.character,
   };
   next.decisions.push(decision);
   next.events.push({ day: g.day + 1, text: response, character: c.character });
@@ -248,6 +276,7 @@ export function chooseEnding(g: Game): Ending {
     f.network >= 4 &&
     f.preserved >= 3 &&
     g.relations.mikhail.trust >= 45 &&
+    !contactUnavailable(g, "mikhail") &&
     s.exposure < 90
   )
     return "escape";
@@ -284,15 +313,21 @@ export function nextDay(g: Game): Game {
     throw new Error("O expediente ainda não foi encerrado.");
   if (g.mode === "campaign" && g.day === 30)
     return { ...g, phase: "ending", ending: chooseEnding(g) };
-  return deliverConsequences({
-    ...g,
-    day: g.day + 1,
-    phase: "morning",
-    board: [],
-    links: [],
-    comparisons: [],
-    positions: {},
-  });
+  return updateInstitution(
+    deliverConsequences({
+      ...g,
+      day: g.day + 1,
+      phase: "morning",
+      board: [],
+      links: [],
+      comparisons: [],
+      positions: {},
+      chapterIntro:
+        g.mode === "campaign" && [8, 16, 24].includes(g.day + 1)
+          ? g.day + 1
+          : null,
+    }),
+  );
 }
 export function linkClues(
   g: Game,
@@ -305,6 +340,14 @@ export function linkClues(
     cb = clues.find((e) => e.id === b);
   if (a === b || !g.board.includes(a) || !g.board.includes(b) || !ca || !cb)
     throw new Error("Escolha dois trechos diferentes fixados no quadro.");
+  for (const id of [a, b]) {
+    const owner = casesFor(g).find((c) => !!sourceFor(c, g, id));
+    const doc = owner ? sourceFor(owner, g, id) : undefined;
+    if (!doc || documentAccess(g, doc))
+      throw new Error(
+        "Uma das fontes ainda não está disponível para este cruzamento.",
+      );
+  }
   if (g.excerpts.some((e) => e.id === a || e.id === b))
     throw new Error(
       "Use a mesa de confronto para comparar os valores de uma seleção livre. Textos diferentes não comprovam uma contradição.",
@@ -325,35 +368,4 @@ export function linkClues(
     ],
   };
 }
-export function characterEpilogue(g: Game, id: string): string {
-  const r = g.relations[id],
-    character = characters.find((c) => c.id === id)!;
-  const related = g.decisions.filter(
-    (d) => casesForHistoryCharacter(d.day) === id,
-  );
-  const personal = g.decisions.filter((d) =>
-    character.name.includes(d.subject),
-  );
-  const custody = personal
-    .filter((d) => d.action === "detain" || d.action === "release")
-    .at(-1);
-  const detained = custody?.action === "detain";
-  if (detained)
-    return "Foi alcançado por uma ordem de detenção. O registro permanece nos arquivos; a família pede notícias.";
-  if (g.ending === "traitor")
-    return r.trust >= 60
-      ? "Tentou preservar uma cópia antes de seu afastamento. O contato foi interrompido."
-      : "Negou conhecer os detalhes do seu trabalho.";
-  if (g.ending === "escape")
-    return r.trust >= 60
-      ? "Ficou para proteger a rede. A última mensagem não confirma se conseguiu."
-      : "Passou a responder perguntas sobre a sua fuga.";
-  return r.trust >= 60
-    ? "A confiança construída nos encontros permitiu que seu testemunho sobrevivesse."
-    : related.length
-      ? "Sobreviveu à investigação, mas manteve distância. As escolhas deixaram marcas."
-      : "Permaneceu à margem das decisões que você registrou.";
-}
-function casesForHistoryCharacter(day: number) {
-  return storyCase(Math.min(day, 30)).character;
-}
+export { characterEpilogue } from "../content/epilogues";

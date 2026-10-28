@@ -4,6 +4,7 @@ async function start(page: import("@playwright/test").Page) {
   await page.goto("./");
   await page.getByRole("button", { name: /01 Novo jogo/ }).click();
   await page.getByRole("button", { name: /Entrar no departamento/ }).click();
+  await page.getByRole("button", { name: /Iniciar expediente/ }).click();
 }
 async function quote(page: import("@playwright/test").Page, index: number) {
   await page.locator(".document-copy").evaluate((node, i) => {
