@@ -426,7 +426,7 @@ export default function Game() {
             <footer className="menu-footer">
               <span>FICÇÃO HISTÓRICA · EXPERIÊNCIA SINGLE-PLAYER</span>
               <span>
-                VERSÃO 0.4 <b>✦</b> SALVAMENTO LOCAL
+                VERSÃO 0.5 <b>✦</b> SALVAMENTO LOCAL
               </span>
             </footer>
           </section>
@@ -445,8 +445,9 @@ export default function Game() {
               </button>
               <div className="desk-chapter">
                 <span>
-                  CAPÍTULO {roman[chapters.indexOf(chapter)]} /{" "}
-                  {chapter.title.toUpperCase()}
+                  {game.mode === "infinite"
+                    ? `EXPEDIENTE ${game.day} / SEÇÃO DISTRITAL`
+                    : `CAPÍTULO ${roman[chapters.indexOf(chapter)]} / ${chapter.title.toUpperCase()}`}
                 </span>
                 <b>
                   {game.mode === "infinite"
@@ -942,7 +943,7 @@ export default function Game() {
               <div className="modal-content">
                 <Insignia small />
                 <h2>LUBYANKA</h2>
-                <p>Arquivos da KGB · versão 0.4</p>
+                <p>Arquivos da KGB · versão 0.5</p>
                 <p>
                   Uma obra de ficção histórica sobre a distância entre um
                   registro oficial e uma vida. Personagens, projeto Zarya e

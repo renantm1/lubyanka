@@ -58,6 +58,7 @@ export function createGame(
 ): Game {
   return {
     version: 1,
+    rulesVersion: 2,
     seed,
     mode,
     day: 1,
@@ -102,9 +103,9 @@ export const casesFor = (g: Game): Case[] => {
     g.mode === "campaign"
       ? [
           deepenInvestigation(storyCase(g.day, beatFor(g)), g),
-          generateCase(g.seed, g.day),
+          generateCase(g.seed, g.day, g.rulesVersion),
         ]
-      : [generateCase(g.seed, g.day)];
+      : [generateCase(g.seed, g.day, g.rulesVersion)];
   const enriched = cases.map((base) => {
     const c = withInquiryDocuments(base, g);
     return {

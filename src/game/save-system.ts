@@ -56,6 +56,10 @@ export function deserialize(raw: string): Game {
   )
     throw new Error("Arquivo de salvamento incompatível.");
   const base = createGame();
+  // O catálogo original é mantido para não trocar documentos de processos em andamento.
+  if (g.rulesVersion === undefined) g.rulesVersion = 1;
+  if (![1, 2].includes(g.rulesVersion))
+    throw new Error("Regras de partida incompatíveis.");
   // Migração aditiva: os saves publicados na versão 0.1 não tinham estes campos.
   if (g.excerpts === undefined) g.excerpts = [];
   if (g.comparisons === undefined) g.comparisons = [];

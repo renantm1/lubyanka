@@ -1,5 +1,9 @@
 import { fromBeat, dateFor } from "./document-generator";
 import type { Beat, Case } from "./types";
+import {
+  additionalVariants,
+  type ProceduralVariant,
+} from "../content/procedural-expansion";
 // Cada variante define a verdade e a cadeia de evidência ANTES dos documentos.
 export const archetypes = [
   {
@@ -206,12 +210,47 @@ export function random(seed: string) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-export function generateCase(seed: string, day: number): Case {
+function scheduledVariant(
+  seed: string,
+  day: number,
+  index: number,
+  count: number,
+) {
+  const occurrence = Math.floor((day - 1) / archetypes.length),
+    block = Math.floor(occurrence / count);
+  const permutation = (cycle: number) => {
+    const rng = random(`${seed}:catalogue:${index}:${cycle}`),
+      order = Array.from({ length: count }, (_, i) => i);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    return order;
+  };
+  const order = permutation(block);
+  // Trocar apenas as primeiras posições preserva a última para a próxima rodada.
+  if (block > 0 && count >= 3 && order[0] === permutation(block - 1)[count - 1])
+    [order[0], order[1]] = [order[1], order[0]];
+  return order[occurrence % count];
+}
+export function generateCase(
+  seed: string,
+  day: number,
+  rulesVersion: 1 | 2 = 1,
+): Case {
   const rng = random(`${seed}:${day}`),
     index = (day - 1 + Math.floor(random(seed)() * 8)) % 8;
   const archetype = archetypes[index],
-    variant = Math.floor(rng() * archetype.variants.length);
-  const [truth, accusation, proof, witness] = archetype.variants[variant];
+    originalVariant = Math.floor(rng() * archetype.variants.length),
+    variants: readonly ProceduralVariant[] =
+      rulesVersion === 2
+        ? [...archetype.variants, ...additionalVariants[index]]
+        : archetype.variants,
+    variant =
+      rulesVersion === 2
+        ? scheduledVariant(seed, day, index, variants.length)
+        : originalVariant;
+  const [truth, accusation, proof, witness] = variants[variant];
   const first = [
     "Anatoli",
     "Sofia",
@@ -232,7 +271,12 @@ export function generateCase(seed: string, day: number): Case {
     "Melnikov",
     "Alekseeva",
   ];
-  const subject = `${first[Math.floor(rng() * first.length)]} ${last[Math.floor(rng() * last.length)]}`;
+  const firstIndex = Math.floor(rng() * first.length),
+    surnames =
+      rulesVersion === 2
+        ? last.filter((_, i) => i % 2 === firstIndex % 2)
+        : last,
+    subject = `${first[firstIndex]} ${surnames[Math.floor(rng() * surnames.length)]}`;
   const beat: Beat = {
     title: `${archetype.name} · processo ${String(day).padStart(3, "0")}`,
     subject,
@@ -310,6 +354,9 @@ export function generateCase(seed: string, day: number): Case {
       author: "Perícia documental",
       date,
       archive: true,
+      ...(rulesVersion === 2 && difficulty >= 3
+        ? { access: { prestige: 65, trust: 35 } }
+        : {}),
       unlock: {
         a: `${c.id}-claim`,
         b: `${c.id}-proof`,

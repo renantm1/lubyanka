@@ -38,14 +38,14 @@ Arraste os papéis pela borda superior. TAB e ENTER navegam pelos controles. **A
 
 O jogo salva no `localStorage` deste navegador. Configurações permitem exportar/importar uma cópia JSON. Uma nova partida substitui o save atual, mas preserva a coleção de documentos, conquistas e finais. Não há sincronização entre dispositivos. Os checkpoints dos capítulos 8, 16 e 24 são locais ao navegador; o arquivo exportado contém a partida atual, sem transportar esses checkpoints anteriores.
 
-## Escopo desta versão 0.4
+## Escopo desta versão 0.5
 
 **Implementado e jogável:**
 
 - Menu, mesa física, documentos arrastáveis, envelopes, fotografias e jornal diário.
 - Caso inicial completo, com acusação falsa, álibi no arquivo, comparação de provas, recomendação e consequências persistentes.
 - Campanha compacta de **30 dias**, em quatro capítulos, com um processo principal escrito por dia e um processo complementar opcional.
-- Oito arquétipos procedurais, com **três variantes narrativas por arquétipo**, verdade interna definida antes dos documentos e seeds reproduzíveis. As variantes têm provas, motivações e situações diferentes; o formato de investigação ainda é compartilhado.
+- Oito arquétipos procedurais, com **seis variantes narrativas por arquétipo nas novas partidas**: 48 situações com verdade interna definida antes dos documentos e seeds reproduzíveis. As 24 situações adicionais têm acusações, provas e contextos próprios. A distribuição percorre todas as seis variantes de cada arquétipo em uma rodada de 48 expedientes e evita repetir a última situação na passagem para a rodada seguinte. O formato de investigação ainda é compartilhado.
 - Cinco indicadores internos, memória de nove personagens, consequências no dia seguinte e condições acumuladas para os seis finais. Os testes percorrem 30 dias para alcançar cada final.
 - Epílogos que consideram relações, detenções e o desfecho; arquivo persistente de descobertas e conquistas.
 - Seleção de capítulos via checkpoints, controles de áudio sintetizado, movimento reduzido e modo infinito após um final.
@@ -64,19 +64,22 @@ O jogo salva no `localStorage` deste navegador. Configurações permitem exporta
 - Diligências opcionais nos dias **1, 3, 8, 17, 22 e 28**, pelo arquivo, terminal ou telefone. São **12 fontes escritas**, com uma escolha de via por processo. A formal exige ler a declaração, acrescenta 3 de exposição e 1 de confiança da chefia; a reservada exige ler o depoimento, contato livre e confiança mínima de 40, acrescenta 1 de exposição e reduz em 2 a confiança da chefia e do contato. A sindicância e a pausa de contatos suspendem a via reservada; vigilância acrescenta 2 de exposição a ambas. Os valores aparecem antes da escolha.
 - A diligência entrega uma fonte adicional no mesmo expediente. Corroborá-la com o registro independente abre um caminho alternativo para o anexo, sem escolher a conclusão pelo jogador. A opção anterior continua disponível. Dois dias depois chega um retorno próprio: a via formal acrescenta 1 de paranoia, a reservada 1 de integridade. A escolha, a fonte e os efeitos persistem e não podem ser repetidos. No processo alternativo de Daria, confirmar os nomes da lista não apaga a autoria da impressão.
 - Linha interna acessível pelas ferramentas em telas pequenas, para consultar contatos e participar das conversas mesmo quando a barra lateral está recolhida.
+- No **Arquivo Infinito das novas partidas**, sindicância, vigilância e credenciamento podem voltar após pelo menos 12 expedientes desde a ordem anterior do mesmo tipo, quando os indicadores ainda justificam a medida e a janela anterior terminou. Há três textos de comunicado por tipo, alternados nas rodadas; custos e requisitos continuam explícitos. A campanha mantém uma ocorrência de cada evento.
+- Cada rodada institucional tem documento, prazo e resposta próprios. Uma ordem nova não reabre o prazo de uma antiga nem reaplica sua resposta. A correspondência identifica ordens vencidas; a pausa de contatos também funciona nas rodadas renovadas. O cabeçalho do Arquivo Infinito mostra o número real do expediente.
+- Nas novas partidas, os laudos procedurais opcionais a partir do terceiro estágio exigem prestígio 65 e confiança 35. O credenciamento dispensa o prestígio durante a janela, sem dispensar a confiança nem o cruzamento das fontes. Os quatro documentos necessários ao relatório continuam acessíveis sem esse laudo.
 
-Saves das versões 0.1, 0.2 e 0.3 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. Os novos campos começam sem restrições, diligências retroativas ou reapresentação de capítulos antigos. A pressão é avaliada nas manhãs seguintes; consequências são agendadas por relatórios e diligências novos. Casos futuros podem seguir ramificações a partir das escolhas salvas, e processos ainda não concluídos podem exigir mais fontes na versão atual.
+Saves das versões 0.1–0.4 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. Partidas sem versão de regras conservam o catálogo original de 24 variantes e a política institucional de uma ocorrência: um processo aberto não troca de provas após atualizar. Novas partidas usam o catálogo de 48 variantes e a renovação institucional no Arquivo Infinito. Campos anteriores começam sem restrições, diligências retroativas ou reapresentação de capítulos antigos. A pressão é avaliada nas manhãs seguintes; consequências são agendadas por relatórios e diligências novos. Casos futuros da campanha podem seguir ramificações a partir das escolhas salvas.
 
 **Ainda pendente para a experiência completa do documento mestre:**
 
 - Expandir a liberdade de investigação, com mais suspeitos por processo e diligências em outros dias. Há agora duas vias alternativas em seis processos; elas corroboram fatos por fontes distintas, mas ainda não criam conclusões inteiramente novas. A apresentação e o fluxo principal compartilham modelos.
 - Variar mais a composição dos documentos e substituir as ilustrações por material visual mais elaborado quando apropriado.
-- Ampliar as variantes do modo infinito e os acontecimentos institucionais recorrentes. Há quatro estágios e três eventos institucionais por partida, com conteúdo narrativo finito.
+- Acrescentar arquétipos, variantes e tipos de acontecimentos ao modo infinito. As novas partidas têm 48 situações, quatro estágios e três tipos de evento institucional recorrente; o conteúdo escrito continua finito e as rodadas reaproveitam modelos.
 - Acrescentar mais encontros e rotas inteiramente diferentes por capítulo. Há conversas e ramificações reais, mas a campanha ainda converge para a cadeia central do Zarya.
 - Aprofundar a encenação de objetos e as sequências finais; acrescentar trilha composta, animação completa de abertura de pasta e revisão histórica/editorial.
 - Revisar acessibilidade com tecnologias assistivas, testar outros navegadores e realizar testes extensos com jogadores. A validação automatizada de interface usa Chromium.
 
-A campanha é jogável até o dia 30, com seis finais alcançáveis, conteúdo adicional em todos os dias e consequências persistentes. A versão 0.4 ainda não representa o acabamento completo de todo o escopo premium do documento mestre.
+A campanha é jogável até o dia 30, com seis finais alcançáveis, conteúdo adicional em todos os dias e consequências persistentes. A versão 0.5 ainda não representa o acabamento completo de todo o escopo premium do documento mestre.
 
 ## Verificar
 
@@ -89,12 +92,13 @@ npm run test:e2e
 
 Os testes de navegador usam o build de produção; execute `build` antes. O runner inicia e encerra seu próprio servidor na porta 3000; pare outro servidor que ocupe essa porta. No ambiente preparado, Chromium está em `/usr/bin/chromium`. Em outro sistema, instale-o com `npx playwright install chromium` ou indique `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. Essa variável seleciona um executável local, não contém credenciais.
 
-Os testes unitários validam geração determinística, 1.920 casos, as 24 variantes, cronologia, comparação, ações inválidas, progressão, custos humanos, save e os seis percursos completos de finais. As suítes de expansão cobrem ramificações, anexos em duas etapas, seleções livres, entrega única de consequências, sindicância/vigilância/credenciamento, conversas, contatos detidos, epílogos e migração. A suíte de diligências verifica as 12 fontes, requisitos e custos, caminhos alternativos, autoria de Daria, retorno único e validação do save. Os testes de navegador percorrem o primeiro caso e os 30 dias, verificam o modo infinito, save, arraste, teclado, configurações e tela pequena, além de selecionar texto, comparar datas, consultar pareceres, responder à sindicância, produzir uma revisão editorial e usar as novas diligências. Não são uma garantia de equilíbrio narrativo ou de qualidade de todos os textos.
+Os testes unitários validam geração determinística, 1.920 casos do catálogo original e 1.536 do novo catálogo, as 48 variantes, cronologia, comparação, ações inválidas, progressão, custos humanos, save e os seis percursos completos de finais. A expansão do Arquivo Infinito verifica rodadas sem repetição, cinco casos de referência executados no código publicado em 0.4, uma simulação de 120 dias, prazos independentes, respostas por rodada e renovação idempotente. As outras suítes cobrem ramificações, anexos em duas etapas, seleções livres, consequências, conversas, epílogos, diligências e migração. Os testes de navegador percorrem o primeiro caso e os 30 dias, verificam o modo infinito, save, arraste, teclado, configurações e tela pequena, além de selecionar texto, comparar datas, consultar pareceres, responder à sindicância, produzir uma revisão editorial e usar diligências. Os novos fluxos verificam um caso inédito com quatro fontes, uma sindicância renovada e a importação de uma partida 0.4. Não são uma garantia de equilíbrio narrativo ou de qualidade de todos os textos.
 
 ## Organização
 
 - `src/game/engine.ts`: progressão, decisões, indicadores, relações e finais.
 - `src/game/case-generator.ts`: arquétipos, PRNG e validador de consistência.
+- `src/content/procedural-expansion.ts`: 24 situações adicionais, distribuídas apenas nas novas partidas para preservar o catálogo dos saves antigos.
 - `src/game/document-generator.ts`: documentos derivados da verdade interna.
 - `src/game/world.ts`: notícias históricas e consequências ficcionais separadas.
 - `src/game/evidence.ts`: seleção livre, origem das citações, requisições e comparação de valores.

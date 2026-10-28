@@ -134,6 +134,7 @@ export interface InquiryRecord {
 }
 export interface Game {
   version: 1;
+  rulesVersion: 1 | 2;
   seed: string;
   mode: "campaign" | "infinite";
   day: number;
