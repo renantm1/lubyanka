@@ -41,6 +41,9 @@ export interface Document {
   clues: Clue[];
   sealed?: boolean;
   archive?: boolean;
+  scene?: "railway" | "factory" | "laboratory" | "street";
+  unlock?: { a: string; b: string; relation: "conflict" | "support" };
+  access?: { prestige?: number; trust?: number };
 }
 export interface Case {
   id: string;
@@ -59,6 +62,8 @@ export interface Case {
   character: string;
   archetype?: string;
   variant?: number;
+  difficulty?: number;
+  minimumSources?: number;
 }
 export interface Character {
   id: string;
@@ -89,11 +94,29 @@ export interface Decision {
   correct: boolean;
   note: string;
   response: string;
+  thorough?: boolean;
 }
 export interface WorldEvent {
+  id?: string;
   day: number;
   text: string;
   character: string;
+  effects?: Partial<Stats>;
+  document?: Document;
+}
+export interface Excerpt extends Clue {
+  documentId: string;
+  caseId: string;
+}
+export type ComparisonField = "name" | "date" | "time" | "reference" | "text";
+export interface Comparison {
+  a: string;
+  b: string;
+  field: ComparisonField;
+  valueA: string;
+  valueB: string;
+  result: "same" | "different";
+  note: string;
 }
 export interface Game {
   version: 1;
@@ -109,6 +132,9 @@ export interface Game {
   opened: string[];
   discovered: Document[];
   links: { a: string; b: string; relation: "conflict" | "support" }[];
+  excerpts: Excerpt[];
+  comparisons: Comparison[];
+  appliedEvents: string[];
   positions: Record<string, { x: number; y: number }>;
   flags: {
     preserved: number;

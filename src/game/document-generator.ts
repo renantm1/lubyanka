@@ -2,12 +2,20 @@ import type { Beat, Case, Document } from "./types";
 import { beats } from "../content/campaign";
 export const dateFor = (day: number) =>
   new Date(Date.UTC(1983, 10, day)).toISOString().slice(0, 10);
-export function storyCase(day: number): Case {
-  const beat = beats[day - 1];
+export function storyCase(day: number, override?: Beat): Case {
+  const beat = override ?? beats[day - 1];
   if (!beat) throw new Error("Dia fora da campanha");
   return fromBeat(beat, day, `story-${day}`);
 }
 export function fromBeat(beat: Beat, day: number, id: string): Case {
+  const firstAppearance = beats.findIndex((b) => b.subject === beat.subject);
+  const age =
+    firstAppearance === 0
+      ? 34
+      : firstAppearance >= 0
+        ? 28 + (((firstAppearance + 1) * 7) % 31)
+        : 28 +
+          ([...beat.subject].reduce((n, c) => n + c.charCodeAt(0), 0) % 31);
   const date = dateFor(day),
     prefix = id;
   const clue = (
@@ -115,6 +123,13 @@ export function fromBeat(beat: Beat, day: number, id: string): Case {
     {
       id: `${prefix}-photo`,
       kind: "photo",
+      scene: [1, 6, 7, 10, 13, 26].includes(day)
+        ? "railway"
+        : [3, 5, 12, 14, 20, 25, 27, 30].includes(day)
+          ? "laboratory"
+          : day === 2
+            ? "factory"
+            : "street",
       title: day === 1 ? "Plataforma 4 · Kievsky" : "Anexo fotográfico",
       subtitle: "NEGATIVO 04 · AMPLIAR PARA EXAMINAR",
       date: dateFor(Math.max(1, day - 1)),
@@ -133,7 +148,7 @@ export function fromBeat(beat: Beat, day: number, id: string): Case {
     title: beat.title,
     subject: beat.subject,
     occupation: beat.occupation,
-    age: day === 1 ? 34 : 28 + ((day * 7) % 31),
+    age,
     category: day === 1 ? "Correspondência interceptada" : "Operação Zarya",
     briefing: beat.briefing,
     truth: beat.truth,

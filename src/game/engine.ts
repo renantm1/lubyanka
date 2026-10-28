@@ -2,6 +2,10 @@ import type { Action, Case, Conclusion, Ending, Game, Stats } from "./types";
 import { characters } from "../content/characters";
 import { storyCase } from "./document-generator";
 import { generateCase } from "./case-generator";
+import { beatFor } from "../content/branching";
+import { deepenInvestigation } from "../content/investigations";
+import { cluesFor, documentAccess, sourceFor } from "./evidence";
+import { delayedConsequences, deliverConsequences } from "./consequences";
 export const actionLabels: Record<Action, string> = {
   release: "Liberar o investigado",
   detain: "Recomendar detenção",
@@ -70,6 +74,9 @@ export function createGame(
     opened: [],
     discovered: [],
     links: [],
+    excerpts: [],
+    comparisons: [],
+    appliedEvents: [],
     positions: {},
     flags: {
       preserved: 0,
@@ -84,7 +91,10 @@ export function createGame(
 }
 export const casesFor = (g: Game): Case[] =>
   g.mode === "campaign"
-    ? [storyCase(g.day), generateCase(g.seed, g.day)]
+    ? [
+        deepenInvestigation(storyCase(g.day, beatFor(g)), g),
+        generateCase(g.seed, g.day),
+      ]
     : [generateCase(g.seed, g.day)];
 const clamp = (n: number) => Math.max(0, Math.min(100, n));
 export function applyReport(
@@ -95,21 +105,37 @@ export function applyReport(
   evidence: string[],
   note: string,
 ): Game {
+  const canonicalCase = casesFor(g).find((x) => x.id === c.id);
   if (
     g.phase === "night" ||
     g.phase === "ending" ||
     g.day !== c.day ||
-    !casesFor(g).some((x) => x.id === c.id) ||
+    !canonicalCase ||
     g.decisions.some((d) => d.caseId === c.id)
   )
     throw new Error("Relatório indisponível");
+  c = canonicalCase!;
   if (!c.actions.includes(action)) throw new Error("Ação indisponível");
-  const valid = new Set(c.documents.flatMap((d) => d.clues.map((e) => e.id)));
+  const valid = new Set(
+    cluesFor(g, [c])
+      .filter((e) => {
+        const doc = sourceFor(c, g, e.id);
+        return doc && !documentAccess(g, doc);
+      })
+      .map((e) => e.id),
+  );
   const unique = [...new Set(evidence)].filter(
     (e) => valid.has(e) && g.board.includes(e),
   );
   if (unique.length < 2)
     throw new Error("Selecione pelo menos dois trechos deste caso no quadro.");
+  if (
+    new Set(unique.map((id) => sourceFor(c, g, id)?.id)).size <
+    (c.minimumSources ?? 2)
+  )
+    throw new Error(
+      `Cite pelo menos ${c.minimumSources ?? 2} fontes diferentes. Dois trechos do mesmo documento não são confirmação independente.`,
+    );
   const next: Game = structuredClone(g),
     correct = conclusion === c.truth;
   const delta: Stats = {
@@ -196,7 +222,7 @@ export function applyReport(
               : action === "escape"
                 ? "Orlov recebeu o sinal. Uma rota exige confiança, contatos e cópias suficientes."
                 : "A ordem foi registrada. O silêncio também deixa rastros.";
-  next.decisions.push({
+  const decision = {
     day: g.day,
     caseId: c.id,
     subject: c.subject,
@@ -206,8 +232,11 @@ export function applyReport(
     correct,
     note: note.slice(0, 1200),
     response,
-  });
+    thorough: unique.some((id) => !!sourceFor(c, g, id)?.unlock),
+  };
+  next.decisions.push(decision);
   next.events.push({ day: g.day + 1, text: response, character: c.character });
+  next.events.push(...delayedConsequences(c, decision));
   next.phase = "work";
   return next;
 }
@@ -255,14 +284,15 @@ export function nextDay(g: Game): Game {
     throw new Error("O expediente ainda não foi encerrado.");
   if (g.mode === "campaign" && g.day === 30)
     return { ...g, phase: "ending", ending: chooseEnding(g) };
-  return {
+  return deliverConsequences({
     ...g,
     day: g.day + 1,
     phase: "morning",
     board: [],
     links: [],
+    comparisons: [],
     positions: {},
-  };
+  });
 }
 export function linkClues(
   g: Game,
@@ -270,11 +300,15 @@ export function linkClues(
   b: string,
   relation: "conflict" | "support",
 ): Game {
-  const clues = casesFor(g).flatMap((c) => c.documents.flatMap((d) => d.clues));
+  const clues = cluesFor(g, casesFor(g));
   const ca = clues.find((e) => e.id === a),
     cb = clues.find((e) => e.id === b);
   if (a === b || !g.board.includes(a) || !g.board.includes(b) || !ca || !cb)
     throw new Error("Escolha dois trechos diferentes fixados no quadro.");
+  if (g.excerpts.some((e) => e.id === a || e.id === b))
+    throw new Error(
+      "Use a mesa de confronto para comparar os valores de uma seleção livre. Textos diferentes não comprovam uma contradição.",
+    );
   if (ca.key !== cb.key)
     throw new Error(
       "Esses trechos tratam de fatos diferentes. Procure fontes sobre a mesma alegação.",
@@ -297,9 +331,13 @@ export function characterEpilogue(g: Game, id: string): string {
   const related = g.decisions.filter(
     (d) => casesForHistoryCharacter(d.day) === id,
   );
-  const detained = g.decisions.some(
-    (d) => character.name.includes(d.subject) && d.action === "detain",
+  const personal = g.decisions.filter((d) =>
+    character.name.includes(d.subject),
   );
+  const custody = personal
+    .filter((d) => d.action === "detain" || d.action === "release")
+    .at(-1);
+  const detained = custody?.action === "detain";
   if (detained)
     return "Foi alcançado por uma ordem de detenção. O registro permanece nos arquivos; a família pede notícias.";
   if (g.ending === "traitor")

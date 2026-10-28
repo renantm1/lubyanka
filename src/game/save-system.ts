@@ -47,6 +47,10 @@ export function deserialize(raw: string): Game {
   )
     throw new Error("Arquivo de salvamento incompatível.");
   const base = createGame();
+  // Migração aditiva: os saves publicados na versão 0.1 não tinham estes campos.
+  if (g.excerpts === undefined) g.excerpts = [];
+  if (g.comparisons === undefined) g.comparisons = [];
+  if (g.appliedEvents === undefined) g.appliedEvents = [];
   if (
     !["morning", "work", "night", "ending"].includes(g.phase) ||
     !["decisions", "events", "board", "opened", "discovered", "links"].every(
@@ -84,8 +88,23 @@ export function deserialize(raw: string): Game {
         Number.isInteger(d.day) &&
         d.day >= 1 &&
         d.day <= g.day &&
-        Array.isArray(d.evidence) &&
-        typeof d.response === "string",
+        strings(d.evidence) &&
+        typeof d.response === "string" &&
+        typeof d.subject === "string" &&
+        typeof d.note === "string" &&
+        typeof d.correct === "boolean" &&
+        ["innocent", "responsible", "coverup"].includes(d.conclusion) &&
+        [
+          "release",
+          "detain",
+          "watch",
+          "recruit",
+          "expose",
+          "conceal",
+          "preserve",
+          "confront",
+          "escape",
+        ].includes(d.action),
     )
   )
     throw new Error("Decisões inválidas.");
@@ -98,7 +117,8 @@ export function deserialize(raw: string): Game {
         e &&
         Number.isInteger(e.day) &&
         typeof e.text === "string" &&
-        typeof e.character === "string",
+        typeof e.character === "string" &&
+        Object.hasOwn(base.relations, e.character),
     ) ||
     !g.links.every(
       (l: Game["links"][number]) =>
@@ -109,6 +129,46 @@ export function deserialize(raw: string): Game {
     )
   )
     throw new Error("Documentos ou evidências inválidos.");
+  if (
+    !Array.isArray(g.excerpts) ||
+    !g.excerpts.every(
+      (e: Game["excerpts"][number]) =>
+        e &&
+        [e.id, e.text, e.key, e.value, e.source, e.documentId, e.caseId].every(
+          (x) => typeof x === "string",
+        ) &&
+        e.text.length >= 8 &&
+        e.text.length <= 600,
+    ) ||
+    !strings(g.appliedEvents) ||
+    !Array.isArray(g.comparisons) ||
+    !g.comparisons.every(
+      (c: Game["comparisons"][number]) =>
+        c &&
+        [c.a, c.b, c.valueA, c.valueB, c.note].every(
+          (x) => typeof x === "string",
+        ) &&
+        ["name", "date", "time", "reference", "text"].includes(c.field) &&
+        ["same", "different"].includes(c.result),
+    )
+  )
+    throw new Error("Anotações de investigação inválidas.");
+  if (
+    !g.events.every(
+      (e: Game["events"][number]) =>
+        (e.id === undefined || typeof e.id === "string") &&
+        (e.document === undefined || validDocument(e.document)) &&
+        (e.effects === undefined ||
+          (e.effects &&
+            Object.entries(e.effects).every(
+              ([key, value]) =>
+                Object.keys(base.stats).includes(key) &&
+                Number.isFinite(value) &&
+                Math.abs(value!) <= 100,
+            ))),
+    )
+  )
+    throw new Error("Consequências inválidas.");
   if (
     !Object.values(g.positions).every((v) => {
       const p = v as { x: number; y: number };

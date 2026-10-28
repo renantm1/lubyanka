@@ -144,7 +144,144 @@ export function Portrait({ variant = 0 }: { variant?: number }) {
     </svg>
   );
 }
-export function EvidencePhoto() {
+export function EvidencePhoto({
+  scene = "railway",
+}: {
+  scene?: "railway" | "factory" | "laboratory" | "street";
+}) {
+  if (scene !== "railway")
+    return (
+      <svg
+        viewBox="0 0 440 245"
+        className="evidence-photo"
+        role="img"
+        aria-label={`Ilustração de ${scene === "factory" ? "uma fábrica com uma prensa parada" : scene === "laboratory" ? "um laboratório vazio com frascos lacrados" : "uma rua de Moscou à noite"}`}
+      >
+        <rect width="440" height="245" fill="#969682" />
+        {scene === "factory" ? (
+          <>
+            <path
+              d="M0 30h440v16H0M25 0v220h16V0M390 0h16v220h-16M0 205h440v40H0"
+              fill="#414b3e"
+            />
+            <path
+              d="M100 59h190v20H100M125 79h22v110h-22M254 79h22v110h-22M109 174h180v22H109"
+              fill="#333f32"
+            />
+            <path d="M171 68h61v56h-61zM188 124h26v30h-26z" fill="#5a634f" />
+            <path
+              d="M0 9h440M0 54h440M0 98h99M289 98h151M0 147h100M290 147h150"
+              stroke="#68735c"
+              strokeWidth="3"
+            />
+            <circle
+              cx="339"
+              cy="154"
+              r="22"
+              fill="none"
+              stroke="#344331"
+              strokeWidth="9"
+            />
+            <path
+              d="M339 122v-80h62"
+              fill="none"
+              stroke="#344331"
+              strokeWidth="9"
+            />
+          </>
+        ) : scene === "laboratory" ? (
+          <>
+            <path
+              d="M23 30h168v119H23z"
+              fill="#a8aa96"
+              stroke="#4a5645"
+              strokeWidth="7"
+            />
+            <path
+              d="M80 30v119M136 30v119M23 85h168"
+              stroke="#4a5645"
+              strokeWidth="5"
+            />
+            <path
+              d="M0 175h440v17H0M34 192v53h18v-53M377 192v53h18v-53"
+              fill="#3c4a38"
+            />
+            <path
+              d="M244 61h151v103H244z"
+              fill="#69735e"
+              stroke="#43523d"
+              strokeWidth="6"
+            />
+            <path
+              d="M262 80h111M262 100h111M262 120h111M262 140h111"
+              stroke="#939981"
+              strokeWidth="5"
+            />
+            {[86, 132, 182, 223].map((x, i) => (
+              <g key={x}>
+                <path
+                  d={`M${x} 132h16v13l10 26h-36l10-26Z`}
+                  fill={i % 2 ? "#495840" : "#727c61"}
+                  stroke="#354832"
+                  strokeWidth="2"
+                />
+                <path d={`M${x} 130h16`} stroke="#b8b59d" strokeWidth="4" />
+              </g>
+            ))}
+          </>
+        ) : (
+          <>
+            <path d="M0 35h151v163H0M292 17h148v181H292" fill="#4d5a49" />
+            {[15, 52, 89, 306, 343, 380].map((x) => (
+              <g key={x}>
+                {[47, 94, 141].map((y) => (
+                  <rect
+                    key={y}
+                    x={x}
+                    y={y}
+                    width="20"
+                    height="29"
+                    fill="#a0a48c"
+                  />
+                ))}
+              </g>
+            ))}
+            <path d="m0 245 204-102h35l201 102" fill="#69725c" />
+            <path
+              d="M118 245 215 149M319 245 228 149"
+              stroke="#b1af95"
+              strokeWidth="2"
+            />
+            <path d="M253 198V60h-31" stroke="#303e2e" strokeWidth="5" />
+            <path d="m213 60-8 15h28l-5-15Z" fill="#d3cba6" />
+            <path
+              d="m219 171-5 32h12l-2-32M219 159a6 6 0 1 0 1 0"
+              fill="#2f402e"
+            />
+          </>
+        )}
+        <path
+          d="M0 0h440v245H0z"
+          fill="none"
+          stroke="#333d32"
+          strokeWidth="9"
+        />
+        <text
+          x="18"
+          y="230"
+          fill="#d0c7aa"
+          fontSize="10"
+          fontFamily="monospace"
+        >
+          {scene === "factory"
+            ? "ПРОИЗВОДСТВО"
+            : scene === "laboratory"
+              ? "ЛАБОРАТОРИЯ"
+              : "МОСКВА"}{" "}
+          · ANEXO / 1983
+        </text>
+      </svg>
+    );
   return (
     <svg
       viewBox="0 0 440 245"

@@ -29,15 +29,16 @@ npm start
 2. Abra a pasta e fixe o trecho do relatório de Karpov.
 3. Abra a carta, rompa o lacre e examine a fotografia. Elas dão contexto, sem comprovar a acusação.
 4. Busque **Mirov** no terminal. Abra o livro de ponto de Tula e fixe o registro independente.
-5. Abra o quadro, selecione os dois registros sobre a presença de Mirov e proponha uma contradição.
-6. No relatório, escolha sua conclusão, cite pelo menos duas evidências e escolha a recomendação. A comparação ajuda a investigar, mas não é uma chave que resolve automaticamente o processo.
-7. Encerre o expediente e avance. A notícia e a memória do departamento mudam de acordo com a decisão.
+5. Abra o quadro, selecione os dois registros sobre a presença de Mirov e proponha uma contradição. Isso libera uma requisição ao laboratório: o laudo de fita aparece no arquivo central. Você decide se deve obtê-lo e citá-lo.
+6. Também pode selecionar livremente texto no documento e usar **Fixar seleção**. No quadro, a **Mesa de confronto** permite escolher nomes, datas, horários, referências ou texto completo e registrar sua interpretação. Ela verifica valores presentes nas citações; não interpreta intenção nem deduz culpa. Datas equivalentes, como `31 de outubro` e `31/10/1983`, são reconhecidas.
+7. No relatório, escolha sua conclusão, cite pelo menos duas fontes diferentes e escolha a recomendação. Dois trechos do mesmo documento não contam como fontes independentes. A comparação ajuda a investigar, mas não resolve automaticamente o processo.
+8. Encerre o expediente e avance. A notícia e a memória do departamento mudam de acordo com a decisão. Abra **Correspondência** nos dias seguintes: uma resposta pode levar vários dias para chegar.
 
-Arraste os papéis pela borda superior. TAB e ENTER navegam pelos controles. **A** abre o arquivo, **T** o terminal, **Q** o quadro, **R** o relatório e **ESC** fecha a janela ou volta ao menu. Em telas pequenas, a mesa pode ser percorrida horizontalmente; as ferramentas e os documentos se adaptam à largura.
+Arraste os papéis pela borda superior. TAB e ENTER navegam pelos controles. **A** abre o arquivo, **T** o terminal, **Q** o quadro, **R** o relatório, **J** a correspondência e **ESC** fecha a janela ou volta ao menu. Em telas pequenas, a mesa pode ser percorrida horizontalmente; as ferramentas e os documentos se adaptam à largura.
 
 O jogo salva no `localStorage` deste navegador. Configurações permitem exportar/importar uma cópia JSON. Uma nova partida substitui o save atual, mas preserva a coleção de documentos, conquistas e finais. Não há sincronização entre dispositivos. Os checkpoints dos capítulos 8, 16 e 24 são locais ao navegador; o arquivo exportado contém a partida atual, sem transportar esses checkpoints anteriores.
 
-## Escopo desta versão 0.1
+## Escopo desta versão 0.2
 
 **Implementado e jogável:**
 
@@ -49,14 +50,22 @@ O jogo salva no `localStorage` deste navegador. Configurações permitem exporta
 - Epílogos que consideram relações, detenções e o desfecho; arquivo persistente de descobertas e conquistas.
 - Seleção de capítulos via checkpoints, controles de áudio sintetizado, movimento reduzido e modo infinito após um final.
 - Publicação inteiramente estática, com fontes, arte SVG e áudio locais.
+- Seleção livre de trechos, comparação de nomes/datas/horários/referências e anotações persistentes. As relações semânticas que liberam anexos usam pistas escritas e verificáveis; a comparação livre apenas confronta valores e guarda a interpretação do jogador.
+- Sete anexos específicos para o primeiro capítulo, liberados por cruzamento das fontes, com laudos, transcrição e lista de escolta. Citar um anexo fica registrado no relatório.
+- Ramificações efetivas: a custódia de Mirov altera o dia 4; a de Vera altera o dia 9; recrutar Anna altera o dia 12; deter Antonov altera o dia 20; preservar a requisição do dia 5 muda os documentos e a instrução do dia 7.
+- Desdobramentos agendados, correspondência legível e efeitos aplicados uma única vez, inclusive após carregar o save. Pedidos de revisão, documentos e investigações retornam dias depois.
+- Quatro estágios de dificuldade nos processos complementares e no modo infinito (dias 1, 9, 17 e 25): depoimentos presenciais/indiretos, laudos de procedência e exigência de duas, três ou quatro fontes. A complexidade é limitada ao quarto estágio para manter os casos solucionáveis.
+- Ilustrações de ferrovia, fábrica, laboratório e rua, escolhidas pelo contexto, além de diálogos específicos do primeiro capítulo e das novas ramificações.
+
+Saves da versão 0.1 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. As novas consequências são agendadas por relatórios enviados na versão atual; relatórios antigos não recebem penalidades retroativas. Casos futuros podem seguir as novas ramificações a partir das escolhas já salvas.
 
 **Ainda pendente para a experiência completa do documento mestre:**
 
 - Expandir os dias 2–30: já são funcionais e têm dilemas próprios, mas usam um formato compacto de documentos. Faltam cenas mais extensas, rotas exclusivas e encontros mais variados.
-- Aprofundar a investigação com comparações livres de nomes/datas, seleção livre de texto, transcrições, laudos e cadeias com várias etapas. Nesta versão os trechos destacáveis são escritos previamente.
-- Variar mais a composição e apresentação dos documentos. As fotografias são ilustrações locais; o anexo ferroviário ainda é compartilhado nos casos posteriores.
-- Implementar dificuldade crescente no modo infinito, maior diversidade de situações, eventos de paranoia mais elaborados e bloqueios de acesso que alterem investigações.
-- Expandir diálogos e atrasos de consequências além do dia seguinte. Hoje relações e indicadores afetam falas, feedback e finais, mas não substituem a maioria dos processos diários.
+- Ampliar as cadeias de investigação e os anexos dos capítulos seguintes; os processos 8–30 ainda usam em grande parte o formato compacto original.
+- Variar mais a composição dos documentos e substituir as ilustrações por material visual mais elaborado quando apropriado.
+- Ampliar as variantes do modo infinito, os eventos de paranoia e as rotas abertas por prestígio ou confiança. Há mais etapas e fontes, mas o conjunto de situações narrativas ainda é finito.
+- Escrever mais diálogos e ramificações para todos os personagens; a maioria dos processos diários ainda segue a sequência principal.
 - Aprofundar os epílogos individuais e a encenação dos capítulos/finais; adicionar animação específica de abertura de pasta, trilha e revisão histórica/editorial.
 - Revisar acessibilidade com tecnologias assistivas, testar outros navegadores e realizar testes extensos com jogadores. A validação automatizada de interface usa Chromium.
 
@@ -73,7 +82,7 @@ npm run test:e2e
 
 Os testes de navegador usam o build de produção; execute `build` antes. O runner inicia e encerra seu próprio servidor na porta 3000; pare outro servidor que ocupe essa porta. No ambiente preparado, Chromium está em `/usr/bin/chromium`. Em outro sistema, instale-o com `npx playwright install chromium` ou indique `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. Essa variável seleciona um executável local, não contém credenciais.
 
-Os testes unitários validam geração determinística, 1.920 casos, as 24 variantes, cronologia, comparação, ações inválidas, progressão, custos humanos, save e os seis percursos completos de finais. Os cinco testes de navegador investigam o primeiro caso, percorrem os 30 dias até um epílogo e o modo infinito, recuperam o save, verificam a posição dos papéis após arraste, exercitam documentos/teclado/configurações e verificam a tela pequena. Não são uma garantia de equilíbrio narrativo ou de qualidade de todos os textos.
+Os testes unitários validam geração determinística, 1.920 casos, as 24 variantes, cronologia, comparação, ações inválidas, progressão, custos humanos, save e os seis percursos completos de finais. A suíte adicional cobre ramificações, anexos, seleções livres, comparação de valores, entrega única de consequências e migração. Os testes de navegador percorrem o primeiro caso e os 30 dias, verificam o modo infinito, save, arraste, teclado, configurações e tela pequena, além de selecionar texto, comparar datas, liberar um anexo e acompanhar o retorno de Mirov. Não são uma garantia de equilíbrio narrativo ou de qualidade de todos os textos.
 
 ## Organização
 
@@ -81,6 +90,9 @@ Os testes unitários validam geração determinística, 1.920 casos, as 24 varia
 - `src/game/case-generator.ts`: arquétipos, PRNG e validador de consistência.
 - `src/game/document-generator.ts`: documentos derivados da verdade interna.
 - `src/game/world.ts`: notícias históricas e consequências ficcionais separadas.
+- `src/game/evidence.ts`: seleção livre, origem das citações, requisições e comparação de valores.
+- `src/game/consequences.ts`: agendamento e entrega idempotente dos desdobramentos.
+- `src/content/branching.ts`, `investigations.ts` e `dialogue.ts`: processos alternativos, anexos e falas contextuais.
 - `src/game/save-system.ts` e `store.ts`: formato validado, armazenamento e estado Zustand.
 - `src/content/`: personagens, capítulos e 30 processos principais.
 - `src/components/`: mesa, documentos, modais e ilustrações vetoriais.

@@ -10,12 +10,12 @@ export const historicalNews = [
   {
     date: "1983-11-02",
     title: "Exercícios no Ocidente",
-    text: "A OTAN inicia o exercício de comando Able Archer 83. A redação acompanha os comunicados diplomáticos.",
+    text: "A OTAN prepara o exercício de comando Able Archer 83. A redação acompanha os comunicados diplomáticos.",
   },
   {
     date: "1983-11-07",
     title: "Aniversário da Revolução",
-    text: "Moscou marca o aniversário da Revolução de Outubro, celebrado em 7 de novembro no calendário atual.",
+    text: "Moscou marca o aniversário da Revolução de Outubro, celebrado em 7 de novembro no calendário atual. No Ocidente, começa o exercício de comando Able Archer 83.",
   },
   {
     date: "1983-11-11",
@@ -35,6 +35,8 @@ export function newsFor(g: Game) {
     ][g.day % 4],
     fictional: g.events
       .filter((e) => e.day <= g.day)
+      .map((e, index) => ({ ...e, index }))
+      .sort((a, b) => a.day - b.day || a.index - b.index)
       .slice(-2)
       .map((e) => e.text),
   };

@@ -2,6 +2,9 @@
 import { create } from "zustand";
 import type { Document, Game, Meta, Settings } from "./types";
 import { createGame } from "./engine";
+import { casesFor } from "./engine";
+import { documentAccess } from "./evidence";
+import { collectDocuments } from "./catalogue";
 import { readSave, writeSave } from "./save-system";
 const initialMeta: Meta = {
   unlockedDay: 1,
@@ -87,11 +90,7 @@ export const useGame = create<Store>((set, get) => ({
       unlockedDay: Math.max(previous.unlockedDay, Math.min(game.day, 30)),
       endings,
       achievements,
-      documents: [
-        ...new Map(
-          [...previous.documents, ...game.discovered].map((d) => [d.id, d]),
-        ).values(),
-      ],
+      documents: collectDocuments(previous.documents, game.discovered),
     };
     set({ game, meta });
     try {
@@ -107,6 +106,13 @@ export const useGame = create<Store>((set, get) => ({
   open: (doc) => {
     const g = get().game;
     if (!g) return;
+    if (casesFor(g).some((c) => c.documents.some((d) => d.id === doc.id))) {
+      const denied = documentAccess(g, doc);
+      if (denied) {
+        set({ error: denied });
+        return;
+      }
+    }
     get().setGame({
       ...g,
       phase: g.phase === "morning" ? "work" : g.phase,

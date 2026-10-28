@@ -245,12 +245,112 @@ export function generateCase(seed: string, day: number): Case {
     rationale: `${proof} ${witness}`,
     character: ["nadia", "mikhail", "irina", "yuri"][Math.floor(rng() * 4)],
   };
-  return {
+  const c: Case = {
     ...fromBeat(beat, day, `proc-${day}`),
     category: archetype.name,
     archetype: archetype.name,
     variant,
   };
+  const difficulty = Math.min(4, 1 + Math.floor((day - 1) / 8));
+  c.difficulty = difficulty;
+  c.minimumSources = difficulty >= 4 ? 4 : difficulty >= 3 ? 3 : 2;
+  const scene = c.documents.find((d) => d.kind === "photo")!;
+  scene.scene =
+    index === 0
+      ? "factory"
+      : [1, 4, 7].includes(index)
+        ? "laboratory"
+        : index === 3 || index === 6
+          ? "railway"
+          : "street";
+  if (difficulty >= 2) {
+    const reference = `D-${String(day).padStart(3, "0")}`,
+      date = dateFor(day);
+    c.documents.push({
+      id: `${c.id}-testimony`,
+      kind: "telegram",
+      title: "Transcrição da segunda entrevista",
+      subtitle: `FONTE DISTRITAL · REGISTRO ${reference}`,
+      author: "Seção de entrevistas",
+      date,
+      archive: true,
+      paragraphs:
+        truth === "responsible"
+          ? [
+              `Depoente: testemunha da retirada. ${accusation}`,
+              `A testemunha reconhece o registro ${reference}, mas pede que seu endereço não circule com o depoimento.`,
+            ]
+          : truth === "coverup"
+            ? [
+                `Depoente: funcionário da seção. ${accusation}`,
+                `Perguntado sobre a origem: “Mandaram repetir a versão do gabinete. Eu não estava lá.” Referência ${reference}.`,
+              ]
+            : [
+                `Depoente: morador do distrito. ${accusation}`,
+                `Perguntado se presenciou o fato: “Ouvi de uma pessoa na fila. Não vi o que aconteceu.” Referência ${reference}.`,
+              ],
+      clues: [
+        {
+          id: `${c.id}-hearsay`,
+          text:
+            truth === "responsible"
+              ? `A testemunha presencial reconhece a retirada no registro ${reference}.`
+              : `O depoente não presenciou os fatos do registro ${reference}; repetiu uma versão recebida.`,
+          key: `${c.id}-testemunha`,
+          value: truth === "responsible" ? "presencial" : "indireta",
+          source: "Segunda entrevista",
+        },
+      ],
+    });
+    c.documents.push({
+      id: `${c.id}-audit`,
+      kind: "report",
+      title: "Laudo de procedência documental",
+      subtitle: `ANEXO RESERVADO · ${reference}`,
+      author: "Perícia documental",
+      date,
+      archive: true,
+      unlock: {
+        a: `${c.id}-claim`,
+        b: `${c.id}-proof`,
+        relation: truth === "responsible" ? "support" : "conflict",
+      },
+      paragraphs:
+        truth === "responsible"
+          ? [
+              `O registro ${reference} e a prova independente têm cadeia de custódia compatível. A recomendação depende também da motivação e das pessoas afetadas.`,
+              proof,
+            ]
+          : truth === "coverup"
+            ? [
+                `O registro ${reference} foi retransmitido pelo gabinete antes de a testemunha ser entrevistada. O depoimento não é uma confirmação independente.`,
+                proof,
+              ]
+            : [
+                `O registro ${reference} é anterior à coleta de depoimentos. O relato ouvido na fila circulou depois; ele não acrescenta prova à acusação.`,
+                proof,
+              ],
+      clues: [
+        {
+          id: `${c.id}-provenance`,
+          text:
+            truth === "responsible"
+              ? `O registro ${reference} possui cadeia de custódia verificável.`
+              : `A segunda entrevista sobre ${reference} não é confirmação independente da versão oficial.`,
+          key: `${c.id}-procedencia`,
+          value: truth === "responsible" ? "verificada" : "dependente",
+          source: "Laudo de procedência",
+        },
+      ],
+    });
+  }
+  if (difficulty >= 4)
+    c.briefing +=
+      " A direção solicita ao menos quatro fontes no relatório. A quantidade não substitui a análise da independência dos relatos.";
+  else if (difficulty >= 3)
+    c.briefing +=
+      " Este processo exige ao menos três fontes citadas no relatório.";
+  return c;
 }
 export function validateCase(c: Case): string[] {
   const errors: string[] = [],
@@ -278,5 +378,12 @@ export function validateCase(c: Case): string[] {
     errors.push("Prova incompatível com a verdade interna");
   if (!c.rationale || !c.subject || !c.documents.some((d) => d.archive))
     errors.push("Caso incompleto");
+  if (
+    c.documents.filter((d) => d.clues.length).length < (c.minimumSources ?? 2)
+  )
+    errors.push("Fontes insuficientes para a exigência do processo");
+  for (const doc of c.documents)
+    if (doc.unlock && (!ids.has(doc.unlock.a) || !ids.has(doc.unlock.b)))
+      errors.push("Requisição depende de pista inexistente");
   return errors;
 }

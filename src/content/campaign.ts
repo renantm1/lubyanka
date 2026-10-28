@@ -30,7 +30,7 @@ export const beats: Beat[] = [
     "Técnico ferroviário",
     "Uma carta interceptada menciona uma entrega na estação Kievsky. O major Karpov solicita detenção antes do fim do expediente.",
     "Mirov foi visto na plataforma 4 às 21h de 31 de outubro.",
-    "O livro de ponto registra Mirov na oficina de Tula das 18h às 23h, a 180 km de Moscou.",
+    "O livro de ponto registra Mirov na oficina de Tula em 31/10/1983, das 18h às 23h, a 180 km de Moscou.",
     "A carta diz “levo os remédios para mamãe”. A assinatura do relatório foi inserida com outra fita de máquina.",
     "innocent",
     "O registro de Tula contradiz a presença em Kievsky. A carta trata de medicamentos; a denúncia foi adulterada.",

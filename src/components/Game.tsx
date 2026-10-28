@@ -14,7 +14,6 @@ import {
   casesFor,
   characterEpilogue,
   conclusionLabels,
-  createGame,
   endDay,
   endingInfo,
   linkClues,
@@ -29,6 +28,10 @@ import { Building, EvidencePhoto, Insignia, Portrait } from "./Artwork";
 import Modal from "./Modal";
 import DocumentView from "./DocumentView";
 import Ambience from "./Ambience";
+import EvidenceComparator from "./EvidenceComparator";
+import Dispatches from "./Dispatches";
+import { dialogueFor } from "../content/dialogue";
+import { cluesFor, documentAccess, sourceFor } from "../game/evidence";
 type Tool =
   | "settings"
   | "credits"
@@ -40,6 +43,7 @@ type Tool =
   | "collection"
   | "chapters"
   | "new"
+  | "dispatches"
   | null;
 const roman = ["I", "II", "III", "IV"];
 function PaperObject({
@@ -135,7 +139,7 @@ function PaperObject({
         )}
         {doc.kind === "photo" && (
           <>
-            <EvidencePhoto />
+            <EvidencePhoto scene={doc.scene} />
             <span className="photo-caption">
               NEG. 04 / {dateFor(game?.day ?? 1)} <b>⌕</b>
             </span>
@@ -182,14 +186,31 @@ export default function Game() {
   const cases = game ? casesFor(game) : [],
     active = cases[Math.min(selectedCase, cases.length - 1)],
     chapter = chapterFor(game?.day ?? 1);
-  const clues = cases.flatMap((c) => c.documents.flatMap((d) => d.clues)),
+  const clues = game ? cluesFor(game, cases) : [],
     pinned = clues.filter((e) => game?.board.includes(e.id));
+  const activeEvidence = pinned.filter(
+    (p) => game && active && !!sourceFor(active, game, p.id),
+  );
+  useEffect(() => setQuery(""), [game?.day, selectedCase]);
+  const sourceCount =
+    game && active
+      ? new Set(
+          evidence.map((id) => sourceFor(active, game, id)?.id).filter(Boolean),
+        ).size
+      : 0;
   function showTool(t: Tool) {
     setDoc(null);
     setNotice("");
     setTool(t);
   }
   function view(d: Document) {
+    if (game && cases.some((c) => c.documents.some((x) => x.id === d.id))) {
+      const denied = documentAccess(game, d);
+      if (denied) {
+        setNotice(denied);
+        return;
+      }
+    }
     open(d);
     setTool(null);
     setDoc(d);
@@ -282,6 +303,7 @@ export default function Game() {
           t: "terminal",
           q: "board",
           r: "report",
+          j: "dispatches",
         };
         if (shortcuts[e.key.toLowerCase()]) {
           e.preventDefault();
@@ -383,7 +405,7 @@ export default function Game() {
             <footer className="menu-footer">
               <span>FICÇÃO HISTÓRICA · EXPERIÊNCIA SINGLE-PLAYER</span>
               <span>
-                VERSÃO 0.1 <b>✦</b> SALVAMENTO LOCAL
+                VERSÃO 0.2 <b>✦</b> SALVAMENTO LOCAL
               </span>
             </footer>
           </section>
@@ -616,15 +638,7 @@ export default function Game() {
                     <button
                       className="report-object"
                       onClick={() => {
-                        setEvidence(
-                          pinned
-                            .filter((p) =>
-                              active.documents.some((d) =>
-                                d.clues.some((c) => c.id === p.id),
-                              ),
-                            )
-                            .map((p) => p.id),
-                        );
+                        setEvidence(activeEvidence.map((p) => p.id));
                         showTool("report");
                       }}
                     >
@@ -657,17 +671,16 @@ export default function Game() {
                     <span>⌁</span> Quadro de evidências <b>{pinned.length}</b>
                     <kbd>Q</kbd>
                   </button>
+                  <button onClick={() => showTool("dispatches")}>
+                    <span>✉</span> Correspondência{" "}
+                    <b>
+                      {game.events.filter((e) => e.day === game.day).length}
+                    </b>
+                    <kbd>J</kbd>
+                  </button>
                   <button
                     onClick={() => {
-                      setEvidence(
-                        pinned
-                          .filter((p) =>
-                            active.documents.some((d) =>
-                              d.clues.some((c) => c.id === p.id),
-                            ),
-                          )
-                          .map((p) => p.id),
-                      );
+                      setEvidence(activeEvidence.map((p) => p.id));
                       showTool("report");
                     }}
                   >
@@ -794,6 +807,7 @@ export default function Game() {
                 board: "QUADRO DE EVIDÊNCIAS",
                 report: "RELATÓRIO DE DECISÃO",
                 phone: "LINHA INTERNA",
+                dispatches: "CORRESPONDÊNCIA RECEBIDA",
                 collection: "ARQUIVOS DESCOBERTOS",
                 chapters: "SELECIONAR CAPÍTULO",
                 new: "NOVA PARTIDA",
@@ -916,7 +930,7 @@ export default function Game() {
               <div className="modal-content">
                 <Insignia small />
                 <h2>LUBYANKA</h2>
-                <p>Arquivos da KGB · versão 0.1</p>
+                <p>Arquivos da KGB · versão 0.2</p>
                 <p>
                   Uma obra de ficção histórica sobre a distância entre um
                   registro oficial e uma vida. Personagens, projeto Zarya e
@@ -976,15 +990,27 @@ export default function Game() {
                           .includes(query.toLowerCase()),
                     )
                     .map((d) => (
-                      <button key={d.id} onClick={() => view(d)}>
+                      <button
+                        key={d.id}
+                        disabled={!!documentAccess(game, d)}
+                        title={documentAccess(game, d) ?? "Abrir documento"}
+                        onClick={() => view(d)}
+                      >
                         <span>▤</span>
                         <div>
                           <b>{d.title}</b>
                           <small>
                             {active?.subject} · {d.date}
+                            {documentAccess(game, d) && (
+                              <em>{documentAccess(game, d)}</em>
+                            )}
                           </small>
                         </div>
-                        <span>ABRIR →</span>
+                        <span>
+                          {documentAccess(game, d)
+                            ? "REQUISIÇÃO PENDENTE"
+                            : "ABRIR →"}
+                        </span>
                       </button>
                     ))}
                   {query &&
@@ -1095,6 +1121,7 @@ export default function Game() {
                     {clues.find((e) => e.id === l.b)?.source}
                   </p>
                 ))}
+                <EvidenceComparator pair={pair} cases={cases} />
               </div>
             )}
             {tool === "report" && game && active && (
@@ -1152,37 +1179,30 @@ export default function Game() {
                       )}
                     </fieldset>
                     <fieldset>
-                      <legend>02 / EVIDÊNCIAS CITADAS · MÍNIMO 2</legend>
-                      {pinned
-                        .filter((p) =>
-                          active.documents.some((d) =>
-                            d.clues.some((c) => c.id === p.id),
-                          ),
-                        )
-                        .map((p) => (
-                          <label
-                            key={p.id}
-                            className="radio-line evidence-option"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={evidence.includes(p.id)}
-                              onChange={() =>
-                                setEvidence((v) =>
-                                  v.includes(p.id)
-                                    ? v.filter((x) => x !== p.id)
-                                    : [...v, p.id],
-                                )
-                              }
-                            />
-                            {p.text}
-                          </label>
-                        ))}
-                      {!pinned.some((p) =>
-                        active.documents.some((d) =>
-                          d.clues.some((c) => c.id === p.id),
-                        ),
-                      ) && (
+                      <legend>
+                        02 / EVIDÊNCIAS CITADAS · {active.minimumSources ?? 2}{" "}
+                        FONTES DIFERENTES
+                      </legend>
+                      {activeEvidence.map((p) => (
+                        <label
+                          key={p.id}
+                          className="radio-line evidence-option"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={evidence.includes(p.id)}
+                            onChange={() =>
+                              setEvidence((v) =>
+                                v.includes(p.id)
+                                  ? v.filter((x) => x !== p.id)
+                                  : [...v, p.id],
+                              )
+                            }
+                          />
+                          {p.text}
+                        </label>
+                      ))}
+                      {activeEvidence.length === 0 && (
                         <p className="warning">
                           Fixe trechos dos documentos e do arquivo central antes
                           de enviar.
@@ -1220,7 +1240,10 @@ export default function Game() {
                     <button
                       className="red-button"
                       type="submit"
-                      disabled={conclusion === " " || evidence.length < 2}
+                      disabled={
+                        conclusion === " " ||
+                        sourceCount < (active.minimumSources ?? 2)
+                      }
                     >
                       Assinar e enviar relatório →
                     </button>
@@ -1234,15 +1257,7 @@ export default function Game() {
                 <h2>
                   {characters.find((c) => c.id === active?.character)?.name}
                 </h2>
-                <p className="dialogue">
-                  “
-                  {game.day === 1
-                    ? "O major quer uma assinatura rápida. Eu quero que você procure o nome dele no arquivo. Um registro de turno vale mais que a urgência de um superior."
-                    : game.relations[active?.character ?? "irina"].trust >= 55
-                      ? "Você guardou o que disse que guardaria. Posso confirmar a procedência da cópia no arquivo. Tome cuidado com quem recebe o original."
-                      : "Use o arquivo. Eu não vou confirmar sua hipótese por telefone. A responsabilidade pela assinatura é sua."}
-                  ”
-                </p>
+                <p className="dialogue">“{dialogueFor(game, active)}”</p>
                 <p className="muted">
                   {game.relations[active?.character ?? "irina"].memories.at(
                     -1,
@@ -1255,6 +1270,9 @@ export default function Game() {
                   Solicitar o registro independente →
                 </button>
               </div>
+            )}
+            {tool === "dispatches" && game && (
+              <Dispatches game={game} view={view} />
             )}
             {tool === "collection" && (
               <div className="modal-content collection">
@@ -1274,10 +1292,10 @@ export default function Game() {
                     partidas.
                   </p>
                 )}
-                {meta.documents.map((d) => (
+                {meta.documents.map((d, index) => (
                   <button
                     className="archive-line"
-                    key={d.id}
+                    key={`${d.id}:${index}`}
                     onClick={() => {
                       setTool(null);
                       setDoc(d);
