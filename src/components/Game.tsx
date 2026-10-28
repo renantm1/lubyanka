@@ -35,6 +35,8 @@ import ChapterIntro from "./ChapterIntro";
 import EndingView from "./EndingView";
 import MeetingPanel from "./MeetingPanel";
 import InquiryPanel from "./InquiryPanel";
+import PeoplePanel from "./PeoplePanel";
+import { nominalAction } from "../game/responsibility";
 import { deskSound } from "../game/desk-sound";
 import { cluesFor, documentAccess, sourceFor } from "../game/evidence";
 type Tool =
@@ -177,6 +179,7 @@ export default function Game() {
     [seed, setSeed] = useState("MOSCOU-1983"),
     [conclusion, setConclusion] = useState<Conclusion | " ">(" "),
     [action, setAction] = useState<Action>("release"),
+    [targetId, setTargetId] = useState("primary"),
     [note, setNote] = useState(""),
     [evidence, setEvidence] = useState<string[]>([]),
     [pair, setPair] = useState<string[]>([]),
@@ -196,7 +199,12 @@ export default function Game() {
   const activeEvidence = pinned.filter(
     (p) => game && active && !!sourceFor(active, game, p.id),
   );
-  useEffect(() => setQuery(""), [game?.day, selectedCase]);
+  useEffect(() => {
+    setQuery("");
+    setTargetId("primary");
+  }, [game?.day, selectedCase, game?.seed, game?.investigationVersion]);
+  const selectedTarget =
+    active?.suspects?.find((s) => s.id === targetId) ?? active?.suspects?.[0];
   const sourceCount =
     game && active
       ? new Set(
@@ -426,7 +434,7 @@ export default function Game() {
             <footer className="menu-footer">
               <span>FICÇÃO HISTÓRICA · EXPERIÊNCIA SINGLE-PLAYER</span>
               <span>
-                VERSÃO 0.5 <b>✦</b> SALVAMENTO LOCAL
+                VERSÃO 0.6 <b>✦</b> SALVAMENTO LOCAL
               </span>
             </footer>
           </section>
@@ -943,7 +951,7 @@ export default function Game() {
               <div className="modal-content">
                 <Insignia small />
                 <h2>LUBYANKA</h2>
-                <p>Arquivos da KGB · versão 0.5</p>
+                <p>Arquivos da KGB · versão 0.6</p>
                 <p>
                   Uma obra de ficção histórica sobre a distância entre um
                   registro oficial e uma vida. Personagens, projeto Zarya e
@@ -994,6 +1002,7 @@ export default function Game() {
                   />
                 </label>
                 {active && <InquiryPanel investigation={active} view={view} />}
+                {active && <PeoplePanel investigation={active} view={view} />}
                 <div className="archive-results">
                   {archiveDocs
                     .filter(
@@ -1149,6 +1158,9 @@ export default function Game() {
                     <div className="ink-stamp">ENVIADO</div>
                     <p>{conclusionLabels[currentReport.conclusion]}</p>
                     <p>{actionLabels[currentReport.action]}</p>
+                    {currentReport.targetId && (
+                      <p>Encaminhamento nominal: {currentReport.subject}.</p>
+                    )}
                     <blockquote>
                       {currentReport.note || "Sem observações adicionais."}
                     </blockquote>
@@ -1169,6 +1181,7 @@ export default function Game() {
                             action,
                             evidence,
                             note,
+                            selectedTarget?.id,
                           ),
                         );
                         deskSound("stamp", settings);
@@ -1178,6 +1191,13 @@ export default function Game() {
                   >
                     <fieldset>
                       <legend>01 / CONCLUSÃO DO ANALISTA</legend>
+                      {active.suspects && (
+                        <p className="muted">
+                          Avalie a acusação inicial contra {active.subject}. A
+                          pessoa que receberá a recomendação é escolhida
+                          separadamente abaixo.
+                        </p>
+                      )}
                       {(Object.keys(conclusionLabels) as Conclusion[]).map(
                         (c) => (
                           <label key={c} className="radio-line">
@@ -1237,6 +1257,34 @@ export default function Game() {
                         ))}
                       </select>
                     </label>
+                    {active.suspects && nominalAction(action) && (
+                      <fieldset className="target-choice">
+                        <legend>04 / ENCAMINHAMENTO NOMINAL</legend>
+                        <p>
+                          A recomendação será emitida em nome da pessoa
+                          escolhida. Para imputar responsabilidade, cite a fonte
+                          que demonstra o ato individual.
+                        </p>
+                        {active.suspects.map((person) => (
+                          <label
+                            className="radio-line target-option"
+                            key={person.id}
+                          >
+                            <input
+                              type="radio"
+                              name="target"
+                              value={person.id}
+                              checked={selectedTarget?.id === person.id}
+                              onChange={() => setTargetId(person.id)}
+                            />
+                            <span>
+                              <b>{person.name}</b>
+                              <small>{person.occupation}</small>
+                            </span>
+                          </label>
+                        ))}
+                      </fieldset>
+                    )}
                     <label className="field-label">
                       OBSERVAÇÕES DO ANALISTA
                       <textarea

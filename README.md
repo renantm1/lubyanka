@@ -38,7 +38,7 @@ Arraste os papéis pela borda superior. TAB e ENTER navegam pelos controles. **A
 
 O jogo salva no `localStorage` deste navegador. Configurações permitem exportar/importar uma cópia JSON. Uma nova partida substitui o save atual, mas preserva a coleção de documentos, conquistas e finais. Não há sincronização entre dispositivos. Os checkpoints dos capítulos 8, 16 e 24 são locais ao navegador; o arquivo exportado contém a partida atual, sem transportar esses checkpoints anteriores.
 
-## Escopo desta versão 0.5
+## Escopo desta versão 0.6
 
 **Implementado e jogável:**
 
@@ -67,19 +67,23 @@ O jogo salva no `localStorage` deste navegador. Configurações permitem exporta
 - No **Arquivo Infinito das novas partidas**, sindicância, vigilância e credenciamento podem voltar após pelo menos 12 expedientes desde a ordem anterior do mesmo tipo, quando os indicadores ainda justificam a medida e a janela anterior terminou. Há três textos de comunicado por tipo, alternados nas rodadas; custos e requisitos continuam explícitos. A campanha mantém uma ocorrência de cada evento.
 - Cada rodada institucional tem documento, prazo e resposta próprios. Uma ordem nova não reabre o prazo de uma antiga nem reaplica sua resposta. A correspondência identifica ordens vencidas; a pausa de contatos também funciona nas rodadas renovadas. O cabeçalho do Arquivo Infinito mostra o número real do expediente.
 - Nas novas partidas, os laudos procedurais opcionais a partir do terceiro estágio exigem prestígio 65 e confiança 35. O credenciamento dispensa o prestígio durante a janela, sem dispensar a confiança nem o cruzamento das fontes. Os quatro documentos necessários ao relatório continuam acessíveis sem esse laudo.
+- **Três pessoas envolvidas nos processos dos dias 2, 5, 15 e 24 das novas partidas**, com declarações e fontes nominais próprias no arquivo/terminal. O jogador pode investigar a atuação do operador e da direção, a autorização financeira e o transporte, o destinatário de um presente e seu mensageiro, ou quem requisitou uma chave e quem estava ausente. As versões de Petr no dia 15 e Yuri no dia 24 têm perfis e fontes adaptados à ramificação.
+- O relatório separa a **conclusão sobre a acusação inicial** do **encaminhamento nominal**. Liberar, deter, vigiar, recrutar, denunciar e confrontar têm uma pessoa escolhida. Preservar, omitir e acionar saída continuam sendo medidas documentais, sem imputação individual. Há uma recomendação por processo; ainda não há um veredito separado para cada pessoa.
+- Detenção, denúncia e confronto só são fundamentados quando a pessoa responde pelo ato e o relatório cita a fonte nominal correspondente. Seleções livres podem citar a declaração factual completa; apenas fixar um nome ou um trecho de contexto não comprova o ato. O jogo permite enviar uma acusação não sustentada, com custos de análise, integridade e revisão posterior. Escolher uma pessoa não muda a verdade dos documentos nem resolve o caso automaticamente.
+- A custódia, a libertação, a memória, a resposta do departamento e o histórico usam o nome escolhido. Imputações voltam para revisão dois dias depois, uma única vez. Acertar que houve encobrimento não torna correta a detenção de outra pessoa. Se Karpov for detido, a ordem nova do dia 29 precisa de outro signatário; se o primeiro substituto também estiver detido, outro oficial assume. O acordo anterior com Volkov continua sendo considerado.
 
-Saves das versões 0.1–0.4 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. Partidas sem versão de regras conservam o catálogo original de 24 variantes e a política institucional de uma ocorrência: um processo aberto não troca de provas após atualizar. Novas partidas usam o catálogo de 48 variantes e a renovação institucional no Arquivo Infinito. Campos anteriores começam sem restrições, diligências retroativas ou reapresentação de capítulos antigos. A pressão é avaliada nas manhãs seguintes; consequências são agendadas por relatórios e diligências novos. Casos futuros da campanha podem seguir ramificações a partir das escolhas salvas.
+Saves das versões 0.1–0.5 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. Partidas sem versão de regras conservam o catálogo original de 24 variantes e a política institucional de uma ocorrência; partidas 0.5 conservam o catálogo de 48 variantes. Sem a versão de investigação nominal, o save mantém os processos e relatórios anteriores, sem adicionar novas pessoas a um caso aberto. Novas partidas usam o catálogo ampliado, a renovação no Arquivo Infinito e os quatro processos nominais. Campos anteriores começam sem restrições, diligências retroativas ou reapresentação de capítulos antigos. A pressão é avaliada nas manhãs seguintes; consequências são agendadas por relatórios e diligências novos. Casos futuros da campanha podem seguir ramificações a partir das escolhas salvas.
 
 **Ainda pendente para a experiência completa do documento mestre:**
 
-- Expandir a liberdade de investigação, com mais suspeitos por processo e diligências em outros dias. Há agora duas vias alternativas em seis processos; elas corroboram fatos por fontes distintas, mas ainda não criam conclusões inteiramente novas. A apresentação e o fluxo principal compartilham modelos.
+- Expandir a liberdade de investigação para outros dias, com mais cadeias alternativas e decisões por pessoa. Há três envolvidos em quatro processos e duas vias de diligência em seis processos; a apresentação e parte do fluxo ainda compartilham modelos. A conclusão documental continua sendo sobre a acusação que abriu o processo, mesmo quando o encaminhamento vai para outra pessoa.
 - Variar mais a composição dos documentos e substituir as ilustrações por material visual mais elaborado quando apropriado.
 - Acrescentar arquétipos, variantes e tipos de acontecimentos ao modo infinito. As novas partidas têm 48 situações, quatro estágios e três tipos de evento institucional recorrente; o conteúdo escrito continua finito e as rodadas reaproveitam modelos.
 - Acrescentar mais encontros e rotas inteiramente diferentes por capítulo. Há conversas e ramificações reais, mas a campanha ainda converge para a cadeia central do Zarya.
 - Aprofundar a encenação de objetos e as sequências finais; acrescentar trilha composta, animação completa de abertura de pasta e revisão histórica/editorial.
 - Revisar acessibilidade com tecnologias assistivas, testar outros navegadores e realizar testes extensos com jogadores. A validação automatizada de interface usa Chromium.
 
-A campanha é jogável até o dia 30, com seis finais alcançáveis, conteúdo adicional em todos os dias e consequências persistentes. A versão 0.5 ainda não representa o acabamento completo de todo o escopo premium do documento mestre.
+A campanha é jogável até o dia 30, com seis finais alcançáveis, conteúdo adicional em todos os dias e consequências persistentes. A versão 0.6 ainda não representa o acabamento completo de todo o escopo premium do documento mestre.
 
 ## Verificar
 
@@ -94,6 +98,8 @@ Os testes de navegador usam o build de produção; execute `build` antes. O runn
 
 Os testes unitários validam geração determinística, 1.920 casos do catálogo original e 1.536 do novo catálogo, as 48 variantes, cronologia, comparação, ações inválidas, progressão, custos humanos, save e os seis percursos completos de finais. A expansão do Arquivo Infinito verifica rodadas sem repetição, cinco casos de referência executados no código publicado em 0.4, uma simulação de 120 dias, prazos independentes, respostas por rodada e renovação idempotente. As outras suítes cobrem ramificações, anexos em duas etapas, seleções livres, consequências, conversas, epílogos, diligências e migração. Os testes de navegador percorrem o primeiro caso e os 30 dias, verificam o modo infinito, save, arraste, teclado, configurações e tela pequena, além de selecionar texto, comparar datas, consultar pareceres, responder à sindicância, produzir uma revisão editorial e usar diligências. Os novos fluxos verificam um caso inédito com quatro fontes, uma sindicância renovada e a importação de uma partida 0.4. Não são uma garantia de equilíbrio narrativo ou de qualidade de todos os textos.
 
+A suíte de responsabilidade verifica fontes individuais, escolha de pessoas, imputação não sustentada, seleção livre completa, custódia/libertação, revisão única, substituição de signatários, rotas de Petr/Yuri e migração 0.5. No navegador, verifica relatório e retorno com o nome escolhido, persistência de uma imputação errada, fontes no celular, medidas documentais sem alvo e importação sem adicionar pessoas aos processos antigos.
+
 ## Organização
 
 - `src/game/engine.ts`: progressão, decisões, indicadores, relações e finais.
@@ -105,6 +111,7 @@ Os testes unitários validam geração determinística, 1.920 casos do catálogo
 - `src/game/consequences.ts`: agendamento e entrega idempotente dos desdobramentos.
 - `src/game/institution.ts`: prazos, restrições e respostas às ordens institucionais.
 - `src/game/contacts.ts`: disponibilidade dos contatos conforme a custódia registrada.
+- `src/content/suspects.ts` e `src/game/responsibility.ts`: pessoas dos processos, fontes de autoria, encaminhamentos e revisões nominais.
 - `src/game/inquiries.ts` e `src/content/inquiries.ts`: requisitos, custos, fontes das diligências, caminhos alternativos e retorno agendado.
 - `src/content/branching.ts`, `investigations.ts` e `dialogue.ts`: processos alternativos, anexos e falas contextuais.
 - `src/content/later-investigations.ts`, `meetings.ts` e `epilogues.ts`: capítulos seguintes, compromissos das conversas e destinos específicos.

@@ -686,6 +686,59 @@ input[type="radio"] {
   padding: 24px;
   margin: 28px 0;
 }
+.people-panel {
+  margin: 28px 0;
+  padding: 24px;
+  border: 1px solid #9eac7644;
+}
+.people-panel h3 {
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 400;
+  margin: 10px 0;
+}
+.people-panel > p,
+.people-panel article p,
+.target-choice > p {
+  font-size: 11px;
+  line-height: 1.9;
+}
+.people-panel article {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #9eac7633;
+}
+.people-panel h4 {
+  font-family: var(--serif);
+  font-size: 27px;
+  font-weight: 400;
+  margin: 0 0 8px;
+}
+.people-panel small,
+.target-option small {
+  display: block;
+  font-size: 9px;
+  color: #a3ad8a;
+  line-height: 1.7;
+}
+.people-panel button {
+  white-space: normal;
+  line-height: 1.7;
+  text-align: left;
+}
+.target-option b {
+  font-weight: 400;
+  display: block;
+  margin-bottom: 5px;
+}
+.target-option:has(input:checked) {
+  background: #a3ad8a14;
+}
+@media (max-width: 760px) {
+  .people-panel {
+    padding: 18px;
+  }
+}
 .desk-tools .phone-tool {
   display: none;
 }

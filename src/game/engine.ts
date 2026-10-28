@@ -10,6 +10,13 @@ import { updateInstitution } from "./institution";
 import { meetingDocuments } from "../content/meetings";
 import { contactUnavailable, contactsPaused } from "./contacts";
 import { withInquiryDocuments } from "../content/inquiries";
+import { deepenResponsibility } from "../content/suspects";
+import {
+  accusatoryAction,
+  targetFor,
+  supportsTarget,
+  responsibilityConsequences,
+} from "./responsibility";
 export const actionLabels: Record<Action, string> = {
   release: "Liberar o investigado",
   detain: "Recomendar detenção",
@@ -59,6 +66,7 @@ export function createGame(
   return {
     version: 1,
     rulesVersion: 2,
+    investigationVersion: 1,
     seed,
     mode,
     day: 1,
@@ -102,7 +110,10 @@ export const casesFor = (g: Game): Case[] => {
   const cases =
     g.mode === "campaign"
       ? [
-          deepenInvestigation(storyCase(g.day, beatFor(g)), g),
+          deepenResponsibility(
+            deepenInvestigation(storyCase(g.day, beatFor(g)), g),
+            g,
+          ),
           generateCase(g.seed, g.day, g.rulesVersion),
         ]
       : [generateCase(g.seed, g.day, g.rulesVersion)];
@@ -135,6 +146,7 @@ export function applyReport(
   action: Action,
   evidence: string[],
   note: string,
+  targetId?: string,
 ): Game {
   const canonicalCase = casesFor(g).find((x) => x.id === c.id);
   if (
@@ -167,8 +179,14 @@ export function applyReport(
     throw new Error(
       `Cite pelo menos ${c.minimumSources ?? 2} fontes diferentes. Dois trechos do mesmo documento não são confirmação independente.`,
     );
+  const target = targetFor(c, action, targetId),
+    targetSupported = target ? supportsTarget(g, c, target, unique) : undefined,
+    subject = target?.name ?? c.subject,
+    character = target?.character ?? c.character;
   const next: Game = structuredClone(g),
-    correct = conclusion === c.truth;
+    correct =
+      conclusion === c.truth &&
+      (!target || !accusatoryAction(action) || targetSupported === true);
   const delta: Stats = {
     prestige: correct ? 3 : -4,
     trust: correct ? 1 : -3,
@@ -176,7 +194,7 @@ export function applyReport(
     integrity: 0,
     exposure: 0,
   };
-  const human = c.truth === "innocent";
+  const human = target ? target.truth === "innocent" : c.truth === "innocent";
   switch (action) {
     case "release":
       delta.integrity = human ? 5 : 1;
@@ -234,31 +252,34 @@ export function applyReport(
     delta.exposure += 3;
   for (const k of Object.keys(delta) as (keyof Stats)[])
     next.stats[k] = clamp(next.stats[k] + delta[k]);
-  const relation = next.relations[c.character];
+  const relation = next.relations[character];
   relation.trust = clamp(
     relation.trust + (correct ? 5 : -8) + (action === "detain" ? -5 : 0),
   );
-  relation.memories.push(
-    `Dia ${g.day}: ${actionLabels[action]} — ${c.subject}.`,
-  );
+  relation.memories.push(`Dia ${g.day}: ${actionLabels[action]} — ${subject}.`);
+  const custodyResponse = target
+    ? `${subject} recebeu uma ordem de custódia.`
+    : `${subject} foi encaminhado à custódia.`;
   const response =
     action === "detain"
-      ? `${c.subject} foi encaminhado à custódia. ${human ? "A família pediu uma revisão. O pedido não suspende a ordem." : "A apuração continua; a detenção não substitui o devido exame das provas."}`
+      ? `${custodyResponse} ${human ? "A família pediu uma revisão. O pedido não suspende a ordem." : "A apuração continua; a detenção não substitui o devido exame das provas."}`
       : action === "release"
-        ? `${c.subject} pôde voltar para casa. ${correct ? "Uma carta de agradecimento pode ser interceptada pelo próprio departamento." : "A chefia pede que você justifique as lacunas do relatório."}`
+        ? `${subject} pôde voltar para casa. ${correct ? "Uma carta de agradecimento pode ser interceptada pelo próprio departamento." : "A chefia pede que você justifique as lacunas do relatório."}`
         : action === "preserve"
           ? "Uma cópia foi registrada fora da cadeia habitual. Irina sabe onde procurá-la."
           : action === "recruit"
-            ? `${c.subject} aceita conversar, sob a expectativa de proteção. Isso cria uma dívida.`
+            ? `${subject} aceita conversar, sob a expectativa de proteção. Isso cria uma dívida.`
             : action === "expose" || action === "confront"
-              ? "A comissão recebeu sua acusação. O gabinete também sabe que ela existe."
+              ? `A comissão recebeu sua acusação${target ? ` contra ${subject}` : ""}. O gabinete também sabe que ela existe.`
               : action === "escape"
                 ? "Orlov recebeu o sinal. Uma rota exige confiança, contatos e cópias suficientes."
-                : "A ordem foi registrada. O silêncio também deixa rastros.";
+                : target && action === "watch"
+                  ? `Foi solicitada vigilância sobre ${subject}. O encaminhamento não equivale a uma acusação comprovada.`
+                  : "A ordem foi registrada. O silêncio também deixa rastros.";
   const decision = {
     day: g.day,
     caseId: c.id,
-    subject: c.subject,
+    subject,
     conclusion,
     action,
     evidence: unique,
@@ -266,11 +287,15 @@ export function applyReport(
     note: note.slice(0, 1200),
     response,
     thorough: unique.some((id) => !!sourceFor(c, g, id)?.unlock),
-    character: c.character,
+    character,
+    ...(target
+      ? { caseSubject: c.subject, targetId: target.id, targetSupported }
+      : {}),
   };
   next.decisions.push(decision);
-  next.events.push({ day: g.day + 1, text: response, character: c.character });
+  next.events.push({ day: g.day + 1, text: response, character });
   next.events.push(...delayedConsequences(c, decision));
+  next.events.push(...responsibilityConsequences(c, decision, target));
   next.phase = "work";
   return next;
 }

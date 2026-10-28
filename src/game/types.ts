@@ -70,6 +70,17 @@ export interface Case {
   variant?: number;
   difficulty?: number;
   minimumSources?: number;
+  suspects?: Suspect[];
+}
+export interface Suspect {
+  id: string;
+  name: string;
+  occupation: string;
+  statement: string;
+  truth: "innocent" | "responsible";
+  basis: string[];
+  documentId: string;
+  character?: string;
 }
 export interface Character {
   id: string;
@@ -102,6 +113,9 @@ export interface Decision {
   response: string;
   thorough?: boolean;
   character?: string;
+  caseSubject?: string;
+  targetId?: string;
+  targetSupported?: boolean;
 }
 export interface WorldEvent {
   id?: string;
@@ -135,6 +149,7 @@ export interface InquiryRecord {
 export interface Game {
   version: 1;
   rulesVersion: 1 | 2;
+  investigationVersion: 0 | 1;
   seed: string;
   mode: "campaign" | "infinite";
   day: number;

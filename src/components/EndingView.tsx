@@ -61,6 +61,12 @@ export default function EndingView({
                 DIA {String(d.day).padStart(2, "0")} · {d.subject}
               </span>
               <h3>{actionLabels[d.action]}</h3>
+              {d.caseSubject && d.caseSubject !== d.subject && (
+                <p>
+                  Acusação inicial do processo: {d.caseSubject}. Encaminhamento
+                  nominal: {d.subject}.
+                </p>
+              )}
               <p>{d.response}</p>
               {d.note && <blockquote>{d.note}</blockquote>}
             </li>

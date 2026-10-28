@@ -229,5 +229,27 @@ export function beatFor(g: Game): Beat {
       rationale:
         "O descarte foi autorizado pelo coronel e atinge provas da própria participação. A colaboração não é uma autorização para apagar a cadeia de comando.",
     };
+  if (
+    g.investigationVersion === 1 &&
+    g.day === 29 &&
+    personInCustody(g, "Oleg Karpov", true)
+  ) {
+    const acting = personInCustody(g, "Anatoli Chernov", true)
+      ? "Alexandr Malinin"
+      : "Anatoli Chernov";
+    return {
+      ...base,
+      title: "A assinatura do substituto",
+      subject: acting,
+      occupation: "Oficial substituto do gabinete",
+      briefing: `Karpov permanece sob custódia depois do seu encaminhamento. A nova ordem de apreensão veio do gabinete, assinada por ${acting}. A troca de responsável não encerrou a circulação das instruções.`,
+      accusation: `${acting} determinou apreender as cópias para preservar provas de auditoria.`,
+      proof: `A ordem K-29 assinada por ${acting} exige destruir cópias e dispensa recibo de transferência. A comissão não solicitou o descarte.`,
+      witness:
+        "O protocolo registra quem assumiu o turno depois das detenções. Uma assinatura anterior não pode ser usada para ocultar a autoria de uma ordem nova.",
+      rationale:
+        "A nova assinatura identifica a continuidade da ordem de destruição; a custódia do major não explica nem autoriza o ato do substituto.",
+    };
+  }
   return base;
 }

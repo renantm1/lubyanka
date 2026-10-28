@@ -433,5 +433,24 @@ export function validateCase(c: Case): string[] {
     for (const required of [doc.unlock, ...(doc.unlockAlternatives ?? [])])
       if (required && (!ids.has(required.a) || !ids.has(required.b)))
         errors.push("Requisição depende de pista inexistente");
+  if (c.suspects) {
+    if (
+      new Set(c.suspects.map((s) => s.id)).size !== c.suspects.length ||
+      !c.suspects.some((s) => s.id === "primary" && s.name === c.subject)
+    )
+      errors.push("Pessoas do processo inconsistentes");
+    for (const suspect of c.suspects)
+      if (
+        !ids.has(suspect.documentId) ||
+        !suspect.basis.length ||
+        suspect.basis.some(
+          (id) =>
+            !c.documents.some((doc) =>
+              doc.clues.some((clue) => clue.id === id),
+            ),
+        )
+      )
+        errors.push("Responsabilidade depende de fonte inexistente");
+  }
   return errors;
 }

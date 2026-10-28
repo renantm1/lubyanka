@@ -60,6 +60,9 @@ export function deserialize(raw: string): Game {
   if (g.rulesVersion === undefined) g.rulesVersion = 1;
   if (![1, 2].includes(g.rulesVersion))
     throw new Error("Regras de partida incompatíveis.");
+  if (g.investigationVersion === undefined) g.investigationVersion = 0;
+  if (![0, 1].includes(g.investigationVersion))
+    throw new Error("Versão de investigação incompatível.");
   // Migração aditiva: os saves publicados na versão 0.1 não tinham estes campos.
   if (g.excerpts === undefined) g.excerpts = [];
   if (g.comparisons === undefined) g.comparisons = [];
@@ -153,6 +156,10 @@ export function deserialize(raw: string): Game {
         typeof d.subject === "string" &&
         typeof d.note === "string" &&
         typeof d.correct === "boolean" &&
+        (d.caseSubject === undefined || typeof d.caseSubject === "string") &&
+        (d.targetId === undefined || typeof d.targetId === "string") &&
+        (d.targetSupported === undefined ||
+          typeof d.targetSupported === "boolean") &&
         ["innocent", "responsible", "coverup"].includes(d.conclusion) &&
         [
           "release",
