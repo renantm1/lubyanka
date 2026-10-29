@@ -38,11 +38,17 @@ Arraste os papéis pela borda superior. TAB e ENTER navegam pelos controles. **A
 
 O jogo salva no `localStorage` deste navegador. Configurações permitem exportar/importar uma cópia JSON. Uma nova partida substitui o save atual, mas preserva a coleção de documentos, conquistas e finais. Não há sincronização entre dispositivos. Os checkpoints dos capítulos 8, 16 e 24 são locais ao navegador; o arquivo exportado contém a partida atual, sem transportar esses checkpoints anteriores.
 
-## Escopo desta versão 0.6
+## Escopo desta versão 0.7
 
 **Implementado e jogável:**
 
 - Menu, mesa física, documentos arrastáveis, envelopes, fotografias e jornal diário.
+- **Tutorial guiado no primeiro dia**, ativo nas novas campanhas: seis etapas acompanham leitura da acusação, fixação dos trechos, consulta ao ponto de Tula, comparação no quadro, primeiro relatório, encerramento e avanço para o segundo dia. A etapa muda quando a ação acontece; o tutorial indica a relação e a conclusão do primeiro caso para ensinar os controles. Pode ser pulado e retomado pela ajuda, sem apagar provas. A etapa e a preferência são salvas no navegador e na exportação.
+- **Como jogar**, no menu, no botão `?` da mesa e no atalho **H**. Nos demais dias, a orientação do expediente indica o próximo documento ou o relatório, conforme as fontes reunidas. O quadro é opcional para enviar relatórios; fontes citadas e documentos diferentes continuam obrigatórios.
+- Quadro organizado pelo processo ativo, com contador **0/2**, fontes **A/B**, assuntos dos trechos, distinção entre trechos guiados e seleções livres, limpeza de seleção e retirada de cartões. Um terceiro clique não substitui uma fonte em silêncio. Assuntos incompatíveis mostram a explicação antes da tentativa de ligação.
+- Dicas opcionais em três níveis: orientação geral, documentos a comparar e relação sugerida. Selecionar uma sugestão não liga fontes nem envia relatório automaticamente. Depois de uma ligação, o quadro informa o documento liberado e permite abri-lo; requisitos de autorização especial são explicados quando ainda impedem a consulta.
+- Trechos guiados aparecem antes da ferramenta opcional de seleção livre. A comparação de datas/horários/referências fica recolhida e abre quando uma seleção livre é escolhida; o campo e valores únicos são preparados quando encontrados em ambas as fontes. Resultados continuam sendo anotações, sem interpretação automática de culpa.
+- Correções: a defesa de Volkov no dia 22 agora **conflita** com o anexo, mantendo a responsabilidade do coronel; ligações e comparações invertidas não se duplicam; fontes suspensas não podem ser usadas na comparação livre; cruzamentos não mudam após encerrar o expediente. O atalho R prepara as mesmas provas do botão do relatório. A navegação por teclado considera apenas controles visíveis, inclusive painéis recolhidos.
 - Caso inicial completo, com acusação falsa, álibi no arquivo, comparação de provas, recomendação e consequências persistentes.
 - Campanha compacta de **30 dias**, em quatro capítulos, com um processo principal escrito por dia e um processo complementar opcional.
 - Oito arquétipos procedurais, com **seis variantes narrativas por arquétipo nas novas partidas**: 48 situações com verdade interna definida antes dos documentos e seeds reproduzíveis. As 24 situações adicionais têm acusações, provas e contextos próprios. A distribuição percorre todas as seis variantes de cada arquétipo em uma rodada de 48 expedientes e evita repetir a última situação na passagem para a rodada seguinte. O formato de investigação ainda é compartilhado.
@@ -72,7 +78,7 @@ O jogo salva no `localStorage` deste navegador. Configurações permitem exporta
 - Detenção, denúncia e confronto só são fundamentados quando a pessoa responde pelo ato e o relatório cita a fonte nominal correspondente. Seleções livres podem citar a declaração factual completa; apenas fixar um nome ou um trecho de contexto não comprova o ato. O jogo permite enviar uma acusação não sustentada, com custos de análise, integridade e revisão posterior. Escolher uma pessoa não muda a verdade dos documentos nem resolve o caso automaticamente.
 - A custódia, a libertação, a memória, a resposta do departamento e o histórico usam o nome escolhido. Imputações voltam para revisão dois dias depois, uma única vez. Acertar que houve encobrimento não torna correta a detenção de outra pessoa. Se Karpov for detido, a ordem nova do dia 29 precisa de outro signatário; se o primeiro substituto também estiver detido, outro oficial assume. O acordo anterior com Volkov continua sendo considerado.
 
-Saves das versões 0.1–0.5 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. Partidas sem versão de regras conservam o catálogo original de 24 variantes e a política institucional de uma ocorrência; partidas 0.5 conservam o catálogo de 48 variantes. Sem a versão de investigação nominal, o save mantém os processos e relatórios anteriores, sem adicionar novas pessoas a um caso aberto. Novas partidas usam o catálogo ampliado, a renovação no Arquivo Infinito e os quatro processos nominais. Campos anteriores começam sem restrições, diligências retroativas ou reapresentação de capítulos antigos. A pressão é avaliada nas manhãs seguintes; consequências são agendadas por relatórios e diligências novos. Casos futuros da campanha podem seguir ramificações a partir das escolhas salvas.
+Saves das versões 0.1–0.6 são migrados sem apagar decisões, estatísticas, documentos ou checkpoints. Partidas sem versão de regras conservam o catálogo original de 24 variantes e a política institucional de uma ocorrência; partidas 0.5 conservam o catálogo de 48 variantes. Sem a versão de investigação nominal, o save mantém os processos e relatórios anteriores, sem adicionar novas pessoas a um caso aberto. Novas partidas usam o catálogo ampliado, a renovação no Arquivo Infinito e os quatro processos nominais. A ajuda e a orientação do quadro funcionam nos saves anteriores. No primeiro dia ainda sem relatório, o tutorial é ativado na migração; em partidas mais avançadas, a ajuda permanece disponível sem reiniciar a campanha. O cruzamento antigo de Volkov é corrigido para contradição, preservando anexos liberados, diligências, estatísticas e decisões. Campos anteriores começam sem restrições, diligências retroativas ou reapresentação de capítulos antigos. A pressão é avaliada nas manhãs seguintes; consequências são agendadas por relatórios e diligências novos.
 
 **Ainda pendente para a experiência completa do documento mestre:**
 
@@ -83,7 +89,7 @@ Saves das versões 0.1–0.5 são migrados sem apagar decisões, estatísticas, 
 - Aprofundar a encenação de objetos e as sequências finais; acrescentar trilha composta, animação completa de abertura de pasta e revisão histórica/editorial.
 - Revisar acessibilidade com tecnologias assistivas, testar outros navegadores e realizar testes extensos com jogadores. A validação automatizada de interface usa Chromium.
 
-A campanha é jogável até o dia 30, com seis finais alcançáveis, conteúdo adicional em todos os dias e consequências persistentes. A versão 0.6 ainda não representa o acabamento completo de todo o escopo premium do documento mestre.
+A campanha é jogável até o dia 30, com seis finais alcançáveis, conteúdo adicional em todos os dias e consequências persistentes. A versão 0.7 ainda não representa o acabamento completo de todo o escopo premium do documento mestre.
 
 ## Verificar
 
@@ -100,6 +106,8 @@ Os testes unitários validam geração determinística, 1.920 casos do catálogo
 
 A suíte de responsabilidade verifica fontes individuais, escolha de pessoas, imputação não sustentada, seleção livre completa, custódia/libertação, revisão única, substituição de signatários, rotas de Petr/Yuri e migração 0.5. No navegador, verifica relatório e retorno com o nome escolhido, persistência de uma imputação errada, fontes no celular, medidas documentais sem alvo e importação sem adicionar pessoas aos processos antigos.
 
+A suíte de orientação verifica as seis etapas do tutorial, pular/retomar e migração, fontes por processo, assuntos incompatíveis, sugestões por etapa da investigação, duplicatas invertidas, acesso e expediente fechado, a correção factual de Volkov e preservação da diligência antiga. No navegador, percorre o tutorial completo sem atalhos, recupera sua etapa após recarregar, usa dicas graduais, retira cartões, troca de processo, abre relatório por R e testa foco/ajuda no celular.
+
 ## Organização
 
 - `src/game/engine.ts`: progressão, decisões, indicadores, relações e finais.
@@ -108,6 +116,7 @@ A suíte de responsabilidade verifica fontes individuais, escolha de pessoas, im
 - `src/game/document-generator.ts`: documentos derivados da verdade interna.
 - `src/game/world.ts`: notícias históricas e consequências ficcionais separadas.
 - `src/game/evidence.ts`: seleção livre, origem das citações, requisições e comparação de valores.
+- `src/game/guidance.ts`: etapas do tutorial, orientação por fontes, sugestões e explicações do quadro.
 - `src/game/consequences.ts`: agendamento e entrega idempotente dos desdobramentos.
 - `src/game/institution.ts`: prazos, restrições e respostas às ordens institucionais.
 - `src/game/contacts.ts`: disponibilidade dos contatos conforme a custódia registrada.

@@ -73,7 +73,7 @@ test("cruza duas etapas no capítulo final e consulta um parecer especial", asyn
     .locator(".evidence-card")
     .filter({ hasText: "Registro independente" })
     .click();
-  await page.getByRole("button", { name: "Se corroboram" }).click();
+  await page.getByRole("button", { name: "São contraditórios" }).click();
   await page.keyboard.press("Escape");
   await page.keyboard.press("a");
   await page.getByRole("button", { name: /Terceira página do anexo/ }).click();

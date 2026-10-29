@@ -56,6 +56,20 @@ export function deserialize(raw: string): Game {
   )
     throw new Error("Arquivo de salvamento incompatível.");
   const base = createGame();
+  if (g.tutorial === undefined)
+    g.tutorial =
+      g.mode === "campaign" &&
+      g.day === 1 &&
+      !(
+        Array.isArray(g.decisions) &&
+        g.decisions.some(
+          (d: Game["decisions"][number]) => d.caseId === "story-1",
+        )
+      )
+        ? "active"
+        : "skipped";
+  if (!["active", "skipped", "completed"].includes(g.tutorial))
+    throw new Error("Tutorial inválido.");
   // O catálogo original é mantido para não trocar documentos de processos em andamento.
   if (g.rulesVersion === undefined) g.rulesVersion = 1;
   if (![1, 2].includes(g.rulesVersion))
@@ -270,6 +284,37 @@ export function deserialize(raw: string): Game {
       (g.day !== 30 || g.mode !== "campaign" || g.ending === null))
   )
     throw new Error("Desfecho inválido.");
+  // Corrige o cruzamento publicado no dia 22 sem perder o anexo já liberado.
+  const volkovPair = (a: string, b: string) =>
+    [a, b].includes("story-22-claim") && [a, b].includes("story-22-proof");
+  g.links = g.links.map((l: Game["links"][number]) =>
+    volkovPair(l.a, l.b) ? { ...l, relation: "conflict" } : l,
+  );
+  const seenLinks = new Set<string>();
+  g.links = g.links.filter((l: Game["links"][number]) => {
+    const key = JSON.stringify([...[l.a, l.b].sort(), l.relation]);
+    if (seenLinks.has(key)) return false;
+    seenLinks.add(key);
+    return true;
+  });
+  const correctedVolkovDocument = (doc: Document): Document => ({
+    ...doc,
+    clues: doc.clues.map((clue) =>
+      clue.id === "story-22-proof" ||
+      /^story-22-inquiry-(formal|reserved)-fact$/.test(clue.id)
+        ? { ...clue, value: "refutacao" }
+        : clue,
+    ),
+    ...(doc.unlock && volkovPair(doc.unlock.a, doc.unlock.b)
+      ? { unlock: { ...doc.unlock, relation: "conflict" } }
+      : {}),
+  });
+  g.discovered = g.discovered.map(correctedVolkovDocument);
+  g.inquiries = g.inquiries.map((r: Game["inquiries"][number]) =>
+    r.caseId === "story-22"
+      ? { ...r, document: correctedVolkovDocument(r.document) }
+      : r,
+  );
   return g as Game;
 }
 export function writeSave(storage: StorageLike, g: Game) {

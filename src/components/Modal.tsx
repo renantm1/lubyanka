@@ -33,9 +33,27 @@ export default function Modal({
         close();
       }
       if (e.key === "Tab") {
-        const items = root?.querySelectorAll<HTMLElement>(
-          "button:not([disabled]),input:not([hidden]),select,textarea,a[href]",
-        );
+        const items = Array.from(
+          root?.querySelectorAll<HTMLElement>(
+            'button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),a[href],summary,[tabindex]:not([tabindex="-1"])',
+          ) ?? [],
+        ).filter((el) => {
+          if (
+            el.closest("[hidden],[inert]") ||
+            el.getClientRects().length === 0
+          )
+            return false;
+          let closed = el.closest("details:not([open])");
+          while (closed) {
+            const summary = Array.from(closed.children).find(
+              (child) => child.tagName === "SUMMARY",
+            );
+            if (!summary?.contains(el)) return false;
+            closed =
+              closed.parentElement?.closest("details:not([open])") ?? null;
+          }
+          return true;
+        });
         if (!items?.length) return;
         const first = items[0],
           last = items[items.length - 1];
@@ -63,6 +81,12 @@ export default function Modal({
       previous?.focus();
     };
   }, [close]);
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    root.scrollTop = 0;
+    root.focus({ preventScroll: true });
+  }, [title]);
   return (
     <div
       className="modal-backdrop"

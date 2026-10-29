@@ -11,6 +11,7 @@ const b = (
   truth: Beat["truth"],
   rationale: string,
   character: string,
+  evidenceRelation?: Beat["evidenceRelation"],
 ): Beat => ({
   title,
   subject,
@@ -22,6 +23,7 @@ const b = (
   truth,
   rationale,
   character,
+  ...(evidenceRelation ? { evidenceRelation } : {}),
 });
 export const beats: Beat[] = [
   b(
@@ -287,6 +289,7 @@ export const beats: Beat[] = [
     "responsible",
     "O anexo contradiz a defesa de desconhecimento do coronel.",
     "volkov",
+    "conflict",
   ),
   b(
     "Antes do expurgo",

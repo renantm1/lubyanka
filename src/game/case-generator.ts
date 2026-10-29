@@ -420,7 +420,10 @@ export function validateCase(c: Case): string[] {
     errors.push("Fontes insuficientes para testar a alegação");
   if (
     claims.length >= 2 &&
-    (claims[0].value === claims[1].value) !== (c.truth === "responsible")
+    (claims[0].value === claims[1].value) !==
+      ((c.evidenceRelation ??
+        (c.truth === "responsible" ? "support" : "conflict")) ===
+        "support")
   )
     errors.push("Prova incompatível com a verdade interna");
   if (!c.rationale || !c.subject || !c.documents.some((d) => d.archive))

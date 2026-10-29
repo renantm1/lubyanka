@@ -71,6 +71,7 @@ export interface Case {
   difficulty?: number;
   minimumSources?: number;
   suspects?: Suspect[];
+  evidenceRelation?: "conflict" | "support";
 }
 export interface Suspect {
   id: string;
@@ -150,6 +151,7 @@ export interface Game {
   version: 1;
   rulesVersion: 1 | 2;
   investigationVersion: 0 | 1;
+  tutorial: "active" | "skipped" | "completed";
   seed: string;
   mode: "campaign" | "infinite";
   day: number;
@@ -206,4 +208,5 @@ export interface Beat {
   truth: Conclusion;
   rationale: string;
   character: string;
+  evidenceRelation?: "conflict" | "support";
 }

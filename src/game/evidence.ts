@@ -166,6 +166,8 @@ export function compareValues(
   valueB: string,
   note: string,
 ): Game {
+  if (g.phase === "night" || g.phase === "ending")
+    throw new Error("O expediente já foi encerrado.");
   const clues = cluesFor(g, cases),
     left = clues.find((c) => c.id === a),
     right = clues.find((c) => c.id === b);
@@ -177,6 +179,14 @@ export function compareValues(
     !g.board.includes(b)
   )
     throw new Error("Escolha dois trechos diferentes do quadro.");
+  for (const id of [a, b]) {
+    const owner = cases.find((c) => !!sourceFor(c, g, id)),
+      doc = owner && sourceFor(owner, g, id);
+    if (!doc || documentAccess(g, doc))
+      throw new Error(
+        "Uma das fontes não está disponível para esta comparação.",
+      );
+  }
   if (
     !valuesFor(left, field).includes(valueA) ||
     !valuesFor(right, field).includes(valueB)
@@ -206,11 +216,15 @@ export function compareValues(
       ...g.comparisons.filter(
         (x) =>
           !(
-            x.a === a &&
-            x.b === b &&
             x.field === field &&
-            x.valueA === valueA &&
-            x.valueB === valueB
+            ((x.a === a &&
+              x.b === b &&
+              x.valueA === valueA &&
+              x.valueB === valueB) ||
+              (x.a === b &&
+                x.b === a &&
+                x.valueA === valueB &&
+                x.valueB === valueA))
           ),
       ),
       comparison,

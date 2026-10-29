@@ -98,7 +98,8 @@ export function deepenInvestigation(c: Case, g?: Game): Case {
     unlock: {
       a: first.clues[0].id,
       b: proof.clues[0].id,
-      relation: c.truth === "responsible" ? "support" : "conflict",
+      relation:
+        first.clues[0].value === proof.clues[0].value ? "support" : "conflict",
     },
     paragraphs: [
       data.text,

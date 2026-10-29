@@ -66,7 +66,7 @@ describe("trinta processos aprofundados", () => {
       linkClues(g, ...(g.board as [string, string]), "support"),
     ).toThrow("não está disponível");
     g.board.push("story-22-claim", "story-22-proof");
-    g = linkClues(g, "story-22-claim", "story-22-proof", "support");
+    g = linkClues(g, "story-22-claim", "story-22-proof", "conflict");
     expect(documentAccess(g, reserved)).toContain("Requisição pendente");
     g = linkClues(
       g,

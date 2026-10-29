@@ -67,6 +67,7 @@ export function createGame(
     version: 1,
     rulesVersion: 2,
     investigationVersion: 1,
+    tutorial: mode === "campaign" ? "active" : "skipped",
     seed,
     mode,
     day: 1,
@@ -348,6 +349,10 @@ export function nextDay(g: Game): Game {
     deliverConsequences({
       ...g,
       day: g.day + 1,
+      tutorial:
+        g.mode === "campaign" && g.day === 1 && g.tutorial === "active"
+          ? "completed"
+          : g.tutorial,
       phase: "morning",
       board: [],
       links: [],
@@ -366,6 +371,8 @@ export function linkClues(
   b: string,
   relation: "conflict" | "support",
 ): Game {
+  if (g.phase === "night" || g.phase === "ending")
+    throw new Error("O expediente já foi encerrado.");
   const clues = cluesFor(g, casesFor(g));
   const ca = clues.find((e) => e.id === a),
     cb = clues.find((e) => e.id === b);
@@ -394,7 +401,9 @@ export function linkClues(
   return {
     ...g,
     links: [
-      ...g.links.filter((l) => !(l.a === a && l.b === b)),
+      ...g.links.filter(
+        (l) => !((l.a === a && l.b === b) || (l.a === b && l.b === a)),
+      ),
       { a, b, relation },
     ],
   };

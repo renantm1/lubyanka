@@ -16,7 +16,6 @@ import {
   conclusionLabels,
   endDay,
   endingInfo,
-  linkClues,
   nextDay,
 } from "../game/engine";
 import { chapterFor, chapters } from "../content/campaign";
@@ -28,7 +27,10 @@ import { Building, EvidencePhoto, Insignia, Portrait } from "./Artwork";
 import Modal from "./Modal";
 import DocumentView from "./DocumentView";
 import Ambience from "./Ambience";
-import EvidenceComparator from "./EvidenceComparator";
+import EvidenceBoard from "./EvidenceBoard";
+import DeskGuide from "./DeskGuide";
+import HelpGuide from "./HelpGuide";
+import { tutorialActive } from "../game/guidance";
 import Dispatches from "./Dispatches";
 import { dialogueFor } from "../content/dialogue";
 import ChapterIntro from "./ChapterIntro";
@@ -51,6 +53,7 @@ type Tool =
   | "chapters"
   | "new"
   | "dispatches"
+  | "help"
   | null;
 const roman = ["I", "II", "III", "IV"];
 function PaperObject({
@@ -182,7 +185,6 @@ export default function Game() {
     [targetId, setTargetId] = useState("primary"),
     [note, setNote] = useState(""),
     [evidence, setEvidence] = useState<string[]>([]),
-    [pair, setPair] = useState<string[]>([]),
     [showConsequences, setShowConsequences] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => hydrate(), [hydrate]);
@@ -194,11 +196,12 @@ export default function Game() {
   const cases = game ? casesFor(game) : [],
     active = cases[Math.min(selectedCase, cases.length - 1)],
     chapter = chapterFor(game?.day ?? 1);
-  const clues = game ? cluesFor(game, cases) : [],
+  const clues = game && active ? cluesFor(game, [active]) : [],
     pinned = clues.filter((e) => game?.board.includes(e.id));
-  const activeEvidence = pinned.filter(
-    (p) => game && active && !!sourceFor(active, game, p.id),
-  );
+  const activeEvidence = pinned.filter((p) => {
+    const source = game && active && sourceFor(active, game, p.id);
+    return !!source && !documentAccess(game!, source);
+  });
   useEffect(() => {
     setQuery("");
     setTargetId("primary");
@@ -212,6 +215,7 @@ export default function Game() {
         ).size
       : 0;
   function showTool(t: Tool) {
+    if (t === "report") setEvidence(activeEvidence.map((p) => p.id));
     if (t === "phone") deskSound("phone", settings);
     setDoc(null);
     setNotice("");
@@ -247,7 +251,6 @@ export default function Game() {
     setAction("release");
     setNote("");
     setEvidence([]);
-    setPair([]);
     start(seed, mode);
     setSelectedCase(0);
     setScreen("desk");
@@ -259,7 +262,6 @@ export default function Game() {
     setAction("release");
     setNote("");
     setEvidence([]);
-    setPair([]);
     attempt(() => {
       const g = nextDay(game);
       setGame(g);
@@ -333,16 +335,26 @@ export default function Game() {
           q: "board",
           r: "report",
           j: "dispatches",
+          h: "help",
         };
         if (shortcuts[e.key.toLowerCase()]) {
           e.preventDefault();
-          setTool(shortcuts[e.key.toLowerCase()]);
+          showTool(shortcuts[e.key.toLowerCase()]);
         }
       }
     }
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [screen, tool, doc, game?.phase, game?.chapterIntro, game, setGame]);
+  }, [
+    screen,
+    tool,
+    doc,
+    game?.phase,
+    game?.chapterIntro,
+    game,
+    setGame,
+    selectedCase,
+  ]);
   const currentReport = game?.decisions.find((d) => d.caseId === active?.id);
   const archiveDocs = active?.documents.filter((d) => d.archive) ?? [];
   const news = game ? newsFor(game) : null;
@@ -415,6 +427,9 @@ export default function Game() {
                 <button disabled={!ready} onClick={() => showTool("credits")}>
                   <span>06</span> Créditos
                 </button>
+                <button disabled={!ready} onClick={() => showTool("help")}>
+                  <span>07</span> Como jogar
+                </button>
                 {meta.endings.length > 0 && (
                   <button onClick={() => launch("infinite")}>
                     <span>∞</span> Arquivo infinito
@@ -434,7 +449,7 @@ export default function Game() {
             <footer className="menu-footer">
               <span>FICÇÃO HISTÓRICA · EXPERIÊNCIA SINGLE-PLAYER</span>
               <span>
-                VERSÃO 0.6 <b>✦</b> SALVAMENTO LOCAL
+                VERSÃO 0.7 <b>✦</b> SALVAMENTO LOCAL
               </span>
             </footer>
           </section>
@@ -481,6 +496,13 @@ export default function Game() {
                       : "14:30 · EXPEDIENTE"}
                 </small>
               </div>
+              <button
+                className="help-shortcut"
+                aria-label="Como jogar"
+                onClick={() => showTool("help")}
+              >
+                ?
+              </button>
               <button
                 className="settings-shortcut"
                 aria-label="Configurações"
@@ -564,6 +586,16 @@ export default function Game() {
                     ARQUIVO DE TRABALHO · {active.category.toUpperCase()}
                   </span>
                 </div>
+                <DeskGuide
+                  game={game}
+                  investigation={active}
+                  view={view}
+                  report={() => showTool("report")}
+                  help={() => showTool("help")}
+                  board={() => showTool("board")}
+                  finish={() => attempt(() => setGame(endDay(game)))}
+                  principal={() => setSelectedCase(0)}
+                />
                 <div className="desk-scroll">
                   <div className="physical-desk">
                     <div className="light-pool" />
@@ -672,7 +704,6 @@ export default function Game() {
                     <button
                       className="report-object"
                       onClick={() => {
-                        setEvidence(activeEvidence.map((p) => p.id));
                         showTool("report");
                       }}
                     >
@@ -720,7 +751,6 @@ export default function Game() {
                   </button>
                   <button
                     onClick={() => {
-                      setEvidence(activeEvidence.map((p) => p.id));
                       showTool("report");
                     }}
                   >
@@ -743,6 +773,15 @@ export default function Game() {
                 <span className="eyebrow">O EXPEDIENTE TERMINOU</span>
                 <h2>O que fica no papel.</h2>
                 <p>Uma assinatura nunca termina nesta sala.</p>
+                {tutorialActive(game) && (
+                  <aside className="tutorial-callout">
+                    <b>Tutorial · passo 6 de 6</b>
+                    <p>
+                      Primeiro expediente concluído. Use Avançar para a manhã
+                      seguinte para terminar o tutorial e iniciar o segundo dia.
+                    </p>
+                  </aside>
+                )}
                 <div className="day-results">
                   {game.decisions
                     .filter((d) => d.day === game.day)
@@ -814,7 +853,11 @@ export default function Game() {
         )}
         {doc && (
           <Modal title="EXAME DE DOCUMENTO" close={close}>
-            <DocumentView doc={doc} readonly={screen === "menu"} />
+            <DocumentView
+              doc={doc}
+              readonly={screen === "menu"}
+              onBoard={() => showTool("board")}
+            />
           </Modal>
         )}
         {tool && (
@@ -832,11 +875,26 @@ export default function Game() {
                 collection: "ARQUIVOS DESCOBERTOS",
                 chapters: "SELECIONAR CAPÍTULO",
                 new: "NOVA PARTIDA",
+                help: "COMO JOGAR",
               }[tool]
             }
             close={close}
             wide={tool === "board" || tool === "collection"}
           >
+            {tool === "help" && (
+              <HelpGuide
+                onTutorial={
+                  game?.mode === "campaign" && game.day === 1
+                    ? () => {
+                        setGame({ ...game, tutorial: "active" });
+                        setScreen("desk");
+                        setSelectedCase(0);
+                        close();
+                      }
+                    : undefined
+                }
+              />
+            )}
             {tool === "new" && (
               <div className="modal-content">
                 <span className="eyebrow">01 NOVEMBRO 1983 · MOSCOU</span>
@@ -951,7 +1009,7 @@ export default function Game() {
               <div className="modal-content">
                 <Insignia small />
                 <h2>LUBYANKA</h2>
-                <p>Arquivos da KGB · versão 0.6</p>
+                <p>Arquivos da KGB · versão 0.7</p>
                 <p>
                   Uma obra de ficção histórica sobre a distância entre um
                   registro oficial e uma vida. Personagens, projeto Zarya e
@@ -1066,86 +1124,13 @@ export default function Game() {
                 )}
               </div>
             )}
-            {tool === "board" && game && (
-              <div className="board-panel">
-                <h2>O que as fontes dizem?</h2>
-                <p>
-                  Selecione dois trechos sobre a mesma alegação e proponha uma
-                  relação. O quadro testa a relação; a conclusão do caso
-                  continua sendo sua.
-                </p>
-                <div className="evidence-board">
-                  {pinned.map((p, i) => (
-                    <button
-                      style={{ rotate: `${i % 2 ? 2 : -1}deg` }}
-                      className={`paper evidence-card ${pair.includes(p.id) ? "selected" : ""}`}
-                      key={p.id}
-                      onClick={() =>
-                        setPair((v) =>
-                          v.includes(p.id)
-                            ? v.filter((x) => x !== p.id)
-                            : [...v.slice(-1), p.id],
-                        )
-                      }
-                    >
-                      <span className="pin-head" />
-                      <small>{p.source}</small>
-                      <p>{p.text}</p>
-                      <span className="eyebrow">
-                        {pair.includes(p.id)
-                          ? "SELECIONADO"
-                          : "SELECIONAR TRECHO"}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                {!pinned.length && (
-                  <div className="empty-state">
-                    O quadro ainda está vazio. Abra os documentos e use “Fixar
-                    trecho”.
-                  </div>
-                )}
-                <div className="board-actions">
-                  <button
-                    className="outline-button"
-                    disabled={pair.length !== 2}
-                    onClick={() =>
-                      attempt(() => {
-                        setGame(linkClues(game, pair[0], pair[1], "conflict"));
-                        setNotice(
-                          "Contradição documentada: as fontes divergem sobre o mesmo fato.",
-                        );
-                      })
-                    }
-                  >
-                    São contraditórios
-                  </button>
-                  <button
-                    className="outline-button"
-                    disabled={pair.length !== 2}
-                    onClick={() =>
-                      attempt(() => {
-                        setGame(linkClues(game, pair[0], pair[1], "support"));
-                        setNotice(
-                          "Corroboração documentada: as fontes sustentam a mesma alegação.",
-                        );
-                      })
-                    }
-                  >
-                    Se corroboram
-                  </button>
-                </div>
-                {game.links.map((l, i) => (
-                  <p className="linked-evidence" key={i}>
-                    {l.relation === "conflict"
-                      ? "↯ CONTRADIÇÃO"
-                      : "⟷ CORROBORAÇÃO"}{" "}
-                    · {clues.find((e) => e.id === l.a)?.source} /{" "}
-                    {clues.find((e) => e.id === l.b)?.source}
-                  </p>
-                ))}
-                <EvidenceComparator pair={pair} cases={cases} />
-              </div>
+            {tool === "board" && game && active && (
+              <EvidenceBoard
+                key={active.id}
+                investigation={active}
+                view={view}
+                report={() => showTool("report")}
+              />
             )}
             {tool === "report" && game && active && (
               <div className="modal-content report-form">
@@ -1153,6 +1138,23 @@ export default function Game() {
                   PROTOCOLO {active.id.toUpperCase()} / {active.subject}
                 </span>
                 <h2>O peso da assinatura.</h2>
+                {tutorialActive(game) &&
+                  active.id === "story-1" &&
+                  !currentReport && (
+                    <aside
+                      className="tutorial-callout"
+                      aria-label="Tutorial do relatório"
+                    >
+                      <b>Passo 4 de 6 · Seu primeiro relatório</b>
+                      <p>
+                        O ponto de Tula contradiz o relato de Karpov. Escolha{" "}
+                        <strong>A acusação não se sustenta</strong>, confira as
+                        duas provas e a recomendação{" "}
+                        <strong>Liberar o investigado</strong>. Termine em{" "}
+                        <strong>Assinar e enviar relatório</strong>.
+                      </p>
+                    </aside>
+                  )}
                 {currentReport ? (
                   <>
                     <div className="ink-stamp">ENVIADO</div>

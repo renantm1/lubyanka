@@ -115,7 +115,11 @@ export function fromBeat(beat: Beat, day: number, id: string): Case {
         clue(
           "proof",
           beat.proof,
-          beat.truth === "responsible" ? "alegacao" : "refutacao",
+          (beat.evidenceRelation ??
+            (beat.truth === "responsible" ? "support" : "conflict")) ===
+            "support"
+            ? "alegacao"
+            : "refutacao",
           "Registro independente",
         ),
       ],
@@ -155,6 +159,9 @@ export function fromBeat(beat: Beat, day: number, id: string): Case {
     rationale: beat.rationale,
     documents,
     character: beat.character,
+    ...(beat.evidenceRelation
+      ? { evidenceRelation: beat.evidenceRelation }
+      : {}),
     actions: [
       "release",
       "detain",
